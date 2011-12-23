@@ -41,8 +41,10 @@ my $qr_ip6_cidr	= qr/$qr_ip6_addr(\/[0-9]{1,3})?/io;
 
 sub new {
 	my $self = {
+		iptbinary => 'iptables',
+		iptaction => '-A',
 		ipver	=> 4,		# IPv4 by default
-		table	=> 'filter',
+		table	=> undef,
 		chain	=> undef,
 		target	=> undef,
 		in		=> undef,
@@ -52,6 +54,7 @@ sub new {
 		proto	=> undef,
 		dpt		=> undef,
 		spt		=> undef,
+		mac		=> undef,
 		state	=> undef,
 		comment	=> undef,
 	};
@@ -59,43 +62,31 @@ sub new {
 	bless $self;
 }
 
-sub table {
+sub iptbinary() {
 	my $self = shift;
 	my ($arg) = @_;
 
 	if ( $arg ) {
-		return if ( $self->{ipver} == '4' and $arg !~ m/\A(filter|nat|mangle|raw)\z/i );
-		return if ( $self->{ipver} == '6' and $arg !~ m/\A(filter|mangle|raw)\z/i );
-
-		$self->{table} = $arg;
+		return unless ( $arg =~ m|\A/.+\z| );
+		$self->{iptbinary} = $arg;
 	}
 
-	return $self->{table};
+	return $self->{iptbinary};
 }
 
-sub chain {
+sub iptaction() {
 	my $self = shift;
 	my ($arg) = @_;
 
 	if ( $arg ) {
-		$self->{chain} = $arg;
+		return unless ( $arg =~ m/\A-[ADIRLSFZNXPE]\z/ );
+		$self->{iptaction} = $arg;
 	}
 
-	return $self->{chain};
+	return $self->{iptaction};
 }
 
-sub target {
-	my $self = shift;
-	my ($arg) = @_;
-
-	if ( $arg ) {
-		$self->{target} = $arg;
-	}
-
-	return $self->{target};
-}
-
-sub ipversion {
+sub ipversion() {
 	my $self = shift;
 	my ($arg) = @_;
 
@@ -109,7 +100,43 @@ sub ipversion {
 	return $self->{ipver};
 }
 
-sub proto {
+sub table() {
+	my $self = shift;
+	my ($arg) = @_;
+
+	if ( $arg ) {
+		return if ( $self->{ipver} == '4' and $arg !~ m/\A(filter|nat|mangle|raw)\z/i );
+		return if ( $self->{ipver} == '6' and $arg !~ m/\A(filter|mangle|raw)\z/i );
+
+		$self->{table} = $arg;
+	}
+
+	return $self->{table};
+}
+
+sub chain() {
+	my $self = shift;
+	my ($arg) = @_;
+
+	if ( $arg ) {
+		$self->{chain} = $arg;
+	}
+
+	return $self->{chain};
+}
+
+sub target() {
+	my $self = shift;
+	my ($arg) = @_;
+
+	if ( $arg ) {
+		$self->{target} = $arg;
+	}
+
+	return $self->{target};
+}
+
+sub proto() {
 	my $self = shift;
 	my ($arg) = @_;
 
@@ -122,7 +149,7 @@ sub proto {
 	return $self->{proto};
 }
 
-sub in {
+sub in() {
 	my $self = shift;
 	my ($arg) = @_;
 
@@ -133,7 +160,7 @@ sub in {
 	return $self->{in};
 }
 
-sub out {
+sub out() {
 	my $self = shift;
 	my ($arg) = @_;
 
@@ -144,12 +171,16 @@ sub out {
 	return $self->{out};
 }
 
-sub src {
+sub src() {
 	my $self = shift;
 	my ($arg) = @_;
 
 	if ( $arg ) {
-		return unless ( &__is_valid_inet_host($arg) );
+		return unless (
+			&__is_valid_inet_host($arg) or
+			&__is_valid_inet_cidr($arg) or
+			&__is_valid_inet_range($arg)
+		);
 
 		$self->{src} = $arg;
 	}
@@ -157,12 +188,16 @@ sub src {
 	return $self->{src};
 }
 
-sub dst {
+sub dst() {
 	my $self = shift;
 	my ($arg) = @_;
 
 	if ( $arg ) {
-		return unless ( &__is_valid_inet_host($arg) );
+		return unless (
+			&__is_valid_inet_host($arg) or
+			&__is_valid_inet_cidr($arg) or
+			&__is_valid_inet_range($arg)
+		);
 
 		$self->{dst} = $arg;
 	}
@@ -170,7 +205,7 @@ sub dst {
 	return $self->{dst};
 }
 
-sub dpt {
+sub dpt() {
 	my $self = shift;
 	my ($arg) = @_;
 
@@ -183,7 +218,7 @@ sub dpt {
 	return $self->{dpt};
 }
 
-sub spt {
+sub spt() {
 	my $self = shift;
 	my ($arg) = @_;
 
@@ -196,7 +231,20 @@ sub spt {
 	return $self->{spt};
 }
 
-sub state {
+sub mac() {
+	my $self = shift;
+	my ($arg) = @_;
+
+	if ( $arg ) {
+		return unless ( &__is_valid_mac_address($arg) );
+
+		$self->{mac} = $arg;
+	}
+
+	return $self->{mac};
+}
+
+sub state() {
 	my $self = shift;
 	my ($arg) = @_;
 
@@ -208,23 +256,114 @@ sub state {
 	return $self->{state};
 }
 
-sub comment {
+sub limit() {
 	my $self = shift;
 	my ($arg) = @_;
 
 	if ( $arg ) {
+		# --limit rate[/second|/minute|/hour|/day]
+		return unless ( $arg =~ m/\A\d+\/(s(ec(ond)?)?|m(in(ute)?)?|h(our)?|d(ay)?)\z/i );
+		$self->{limit} = $arg;
+	}
+
+	return $self->{limit};
+}
+
+sub comment() {
+	my $self = shift;
+	my ($arg) = @_;
+
+	if ( $arg ) {
+		return if ( length($arg) > 256 );
+		return if ( $arg =~ m/\"/ );
+
 		$self->{comment} = $arg;
 	}
 
 	return $self->{comment};
 }
 
-sub generate {
+sub generate() {
 	my $self = shift;
 
-	#$self->{spt};
+	# what is required?
+	#carp('chain not defined') unless $self->{chain};
+	return unless $self->{chain};
+	return if ( defined($self->{spt}) and not defined($self->{proto}) );
+	return if ( defined($self->{dpt}) and not defined($self->{proto}) );
 
-	return 'iptables -A blh blah blah';
+	my $rule_prefix;
+	$rule_prefix = $self->{iptbinary};
+	$rule_prefix .= ' -t '.$self->{table}
+		if ( defined($self->{'table'}) );
+	$rule_prefix .= ' '.$self->{iptaction};
+	$rule_prefix .= ' '.$self->{chain};
+	my $rule_criteria;
+
+	
+	if ( defined($self->{src}) ) {
+		if ( &__is_valid_inet_host($self->{src}) or &is_valid_inet_cidr($self->{src}) ) {
+			$rule_criteria .= sprintf(' -s %s', $self->{src});
+		}
+		if ( &__is_valid_inet_range($self->{src}) ) {
+			$rule_criteria .= sprintf(' -m iprange --src-range %s',	$self->{'src'});
+		}
+	}
+	if ( defined($self->{dst}) ) {
+		if ( &__is_valid_inet_host($self->{dst}) or &is_valid_inet_cidr($self->{dst}) ) {
+			$rule_criteria .= sprintf(' -d %s', $self->{dst});
+		}
+		if ( &__is_valid_inet_range($self->{dst}) ) {
+			$rule_criteria .= sprintf(' -m iprange --dst-range %s',	$self->{'dst'});
+		}
+	}
+	
+	$rule_criteria .= sprintf(' -i %s', $self->{in})	if ( defined($self->{in}) );
+	$rule_criteria .= sprintf(' -o %s', $self->{out})	if ( defined($self->{out}) );
+	$rule_criteria .= sprintf(' -p %s', $self->{proto})	if ( defined($self->{proto}) );
+
+	if ( defined($self->{spt}) ) {
+		if ( $self->{spt} =~ m/\A\w+\z/ ) {
+			# just a single port
+			$rule_criteria .= sprintf(' --sport %s', $self->{'spt'});
+		}
+		if ( $self->{spt} =~ m/\A\w+(:\w+)+\z/ ) {
+			# port range
+			$rule_criteria .= sprintf(' --sport %s', $self->{'spt'});
+		}
+		if ( $self->{spt} =~ m/\A\w+(:\w+)+\z/ ) {
+			# multiport
+			$rule_criteria .= sprintf(' -m multiport --sports %s', $self->{'spt'});
+		}
+	}
+	if ( defined($self->{dpt}) ) {
+		if ( $self->{dpt} =~ m/\A\w+\z/ ) {
+			# just a single port
+			$rule_criteria .= sprintf(' --dport %s', $self->{'dpt'});
+		}
+		if ( $self->{dpt} =~ m/\A\w+(:\w+)+\z/ ) {
+			# port range
+			$rule_criteria .= sprintf(' --dport %s', $self->{'dpt'});
+		}
+		if ( $self->{dpt} =~ m/\A\w+(:\w+)+\z/ ) {
+			# multiport
+			$rule_criteria .= sprintf(' -m multiport --dports %s', $self->{'dpt'});
+		}
+	}
+
+	$rule_criteria .= sprintf(' -m mac --mac-source %s',	$self->{mac})		if ( defined($self->{mac}) );
+	$rule_criteria .= sprintf(' -m conntrack --ctstate %s', $self->{state})		if ( defined($self->{state}) );
+	$rule_criteria .= sprintf(' -m comment --comment "%s"', $self->{comment})	if ( defined($self->{comment}) );
+	$rule_criteria .= sprintf(' -m limit --limit %s',		$self->{limit})		if ( defined($self->{limit}));
+
+	$rule_criteria .= sprintf(' -j %s', $self->{'target'})	if ( defined($self->{'target'}) );
+
+#	$ipt_rule .= sprintf(' -m statistic %s',			$criteria{'statistic'})	if (defined($criteria{'statistic'}));
+#	$ipt_rule .= sprintf(' -m time %s',					$criteria{'time'})		if (defined($criteria{'time'}));
+#	$ipt_rule .= sprintf(' --log-prefix "[%s] "',		$criteria{'logprefix'})	if (defined($criteria{'logprefix'}));
+
+	my $full_cmd = $rule_prefix.$rule_criteria;
+	return $full_cmd;
 }
 
 ###############################################################################
@@ -234,6 +373,20 @@ sub generate {
 # All sub named should be prefixed with double underslash (__) to indicate they
 # are internal use only.
 
+sub __is_valid_mac_address() {
+	my ( $arg ) = @_;
+	chomp($arg);
+
+	return unless ( $arg );
+
+	if ( $arg =~ m/\A$qr_mac_addr\z/ ) {
+		return 1;
+	}
+
+	# fail by default
+	return;
+}
+
 sub __is_valid_inet_host() {
 	my ( $arg ) = @_;
 	chomp($arg);
@@ -241,9 +394,23 @@ sub __is_valid_inet_host() {
 	return unless ( $arg );
 
 	# ipv4 address?
-	if ( $arg =~ m/\A$qr_ip4_addr\z/ ) {
-		return 1;
-	}
+	return 1 if ( $arg =~ m/\A$qr_ip4_addr\z/ );
+
+	# ipv6 address?
+	return 1 if ( $arg =~ m/\A$qr_ip6_addr\z/ );
+
+	# fqdn?
+	return 1 if ( $arg =~ m/\A$qr_fqdn\z/ );
+
+	# fail by default
+	return;
+}
+
+sub __is_valid_inet_cidr() {
+	my ( $arg ) = @_;
+	chomp($arg);
+
+	return unless ( $arg );
 
 	# ipv4 cidr?
 	if ( $arg =~ m/\A$qr_ip4_cidr\z/ ) {
@@ -252,11 +419,6 @@ sub __is_valid_inet_host() {
 		return if ( $cidr < 0 );
 		return if ( $cidr > 32 );
 
-		return 1;
-	}
-
-	# ipv6 address?
-	if ( $arg =~ m/\A$qr_ip6_addr\z/ ) {
 		return 1;
 	}
 
@@ -271,10 +433,25 @@ sub __is_valid_inet_host() {
 		return 1;
 	}
 
-	# fqdn?
-	if ( $arg =~ m/\A$qr_fqdn\z/ ) {
-		return 1;
-	}
+	# fail by default
+	return;
+}
+
+sub __is_valid_inet_range() {
+	my ( $arg ) = @_;
+	chomp($arg);
+
+	return unless ( $arg );
+
+	# ipv4 address range?
+	return 1 if (
+		$arg =~ m/\A$qr_ip4_addr\-$qr_ip4_addr\z/
+	);
+
+	# ipv6 address range?
+	return 1 if (
+		$arg =~ m/\A$qr_ip6_addr\-$qr_ip6_addr\z/
+	);
 
 	# fail by default
 	return;
