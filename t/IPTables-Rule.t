@@ -6,7 +6,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 147;
+use Test::More tests => 155;
 BEGIN {
 	use_ok('IPTables::Rule')
 };
@@ -129,13 +129,15 @@ my $ipt_rule = new_ok( 'IPTables::Rule' );
 	is( $ipt_rule->src($good_ipv6_full_addr),	$good_ipv6_full_addr,	'src addr => valid IPv6 full' );
 	is( $ipt_rule->src($good_ipv6_full_cidr),	$good_ipv6_full_cidr,	'src addr => valid IPv6+CIDR full' );
 	# test invalid arguments fail
-	isnt( $ipt_rule->src($bad_fqdn),				$bad_fqdn,				'src addr => invalid FQDN' );
-	isnt( $ipt_rule->src($bad_ipv4_addr),			$bad_ipv4_addr,			'src addr => invalid IPv4' );
-	isnt( $ipt_rule->src($bad_ipv4_cidr),			$bad_ipv4_cidr,			'src addr => invalid IPv4+CIDR' );
+	isnt( $ipt_rule->src($bad_fqdn),			$bad_fqdn,				'src addr => invalid FQDN' );
+	isnt( $ipt_rule->src($bad_ipv4_addr),		$bad_ipv4_addr,			'src addr => invalid IPv4' );
+	isnt( $ipt_rule->src($bad_ipv4_cidr),		$bad_ipv4_cidr,			'src addr => invalid IPv4+CIDR' );
 	isnt( $ipt_rule->src($bad_ipv6_short_addr),	$bad_ipv6_short_addr,	'src addr => invalid IPv6 shortened' );
 	isnt( $ipt_rule->src($bad_ipv6_short_cidr),	$bad_ipv6_short_cidr,	'src addr => invalid IPv6+CIDR shortened' );
 	isnt( $ipt_rule->src($bad_ipv6_full_addr),	$bad_ipv6_full_addr,	'src addr => invalid IPv6 full' );
 	isnt( $ipt_rule->src($bad_ipv6_full_cidr),	$bad_ipv6_full_cidr,	'src addr => invalid IPv6+CIDR full' );
+	# test method aliases too
+	is( $ipt_rule->source($good_fqdn),		$good_fqdn,		'src alias: source' );
 }
 
 # test dst address methods
@@ -156,6 +158,9 @@ my $ipt_rule = new_ok( 'IPTables::Rule' );
 	isnt( $ipt_rule->dst($bad_ipv6_short_cidr),	$bad_ipv6_short_cidr,	'dst addr => invalid IPv6+CIDR shortened' );
 	isnt( $ipt_rule->dst($bad_ipv6_full_addr),	$bad_ipv6_full_addr,	'dst addr => invalid IPv6 full' );
 	isnt( $ipt_rule->dst($bad_ipv6_full_cidr),	$bad_ipv6_full_cidr,	'dst addr => invalid IPv6+CIDR full' );
+	# test method aliases too
+	is( $ipt_rule->dest($good_fqdn),		$good_fqdn,		'dst alias: dest' );
+	is( $ipt_rule->destination($good_fqdn),	$good_fqdn,		'dst alias: destination' );
 }
 
 # test dst port methods
@@ -171,6 +176,8 @@ my $ipt_rule = new_ok( 'IPTables::Rule' );
 	isnt( $ipt_rule->dpt($bad_multiport),			$bad_multiport,				'dst port => invalid numeric multiport' );
 	isnt( $ipt_rule->dpt($bad_named_port),			$bad_named_port,			'dst port => invalid named port' );
 	isnt( $ipt_rule->dpt($bad_named_multiport),		$bad_named_multiport,		'dst port => invalid named multiport' );
+	# test method aliases too
+	is( $ipt_rule->dport($good_numeric_port),		$good_numeric_port,			'dst port alias: dport' );
 }
 
 # test src port methods
@@ -186,14 +193,18 @@ my $ipt_rule = new_ok( 'IPTables::Rule' );
 	isnt( $ipt_rule->spt($bad_multiport),			$bad_multiport,				'src port => invalid numeric multiport' );
 	isnt( $ipt_rule->spt($bad_named_port),			$bad_named_port,			'src port => invalid named port' );
 	isnt( $ipt_rule->spt($bad_named_multiport),		$bad_named_multiport,		'src port => invalid named multiport' );
+	# test method aliases too
+	is( $ipt_rule->sport($good_numeric_port),		$good_numeric_port,			'src port alias: sport' );
 }
 
 # test 'protocol' method
 {
-	is( $ipt_rule->proto('tcp'),	'tcp',	'protocol; tcp' );
-	is( $ipt_rule->proto('udp'),	'udp',	'protocol; udp' );
-	is( $ipt_rule->proto('icmp'),	'icmp',	'protocol; icmp' );
-	is( $ipt_rule->proto('47'),		'47',	'protocol; numeric)' );
+	is( $ipt_rule->proto('tcp'),	'tcp',	'proto; tcp' );
+	is( $ipt_rule->proto('udp'),	'udp',	'proto; udp' );
+	is( $ipt_rule->proto('icmp'),	'icmp',	'proto; icmp' );
+	is( $ipt_rule->proto('47'),		'47',	'proto; numeric)' );
+	# test method aliases too
+	is( $ipt_rule->protocol('tcp'),	'tcp',	'proto alias: protocol' );
 }
 
 # test 'in' method
@@ -256,6 +267,8 @@ my $ipt_rule = new_ok( 'IPTables::Rule' );
 	isnt( $ipt_rule->limit('6/86400'),	'6/86400',	'invalid limit: 6/86400' );
 	isnt( $ipt_rule->limit('1 per sec'),'1 per sec','invalid limit: 1 per sec' );
 	isnt( $ipt_rule->limit('notvalid'),	'notvalid',	'invalid limit: notvalid' );
+	# test method aliases too
+	is( $ipt_rule->rate_limit('1/s'),	'1/s',		'limit alias: rate_limit' );
 }
 
 # test 'logprefix' method
@@ -288,6 +301,8 @@ my $test_rule3 = 'iptables -A tgt_SAMBA -p udp --dport 138 -m comment --comment 
 	$rule1->in('bond0.12');
 	$rule1->comment('test rule 01');
 	is( $rule1->generate, $test_rule1, 'test rule 1' );
+	# test method aliases too
+	is( $rule1->compile, $test_rule1, 'generate alias: compile' );
 }
 {
 	my $rule2 = new_ok( 'IPTables::Rule' );

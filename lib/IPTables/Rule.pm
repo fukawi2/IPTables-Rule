@@ -116,6 +116,7 @@ sub target() {
 	return $self->{target};
 }
 
+*protocol = \&proto;
 sub proto() {
 	my $self = shift;
 	my ($arg) = @_;
@@ -151,6 +152,7 @@ sub out() {
 	return $self->{out};
 }
 
+*source = \&src;
 sub src() {
 	my $self = shift;
 	my ($arg) = @_;
@@ -168,6 +170,8 @@ sub src() {
 	return $self->{src};
 }
 
+*dest = \&dst;
+*destination = \&dst;
 sub dst() {
 	my $self = shift;
 	my ($arg) = @_;
@@ -185,6 +189,7 @@ sub dst() {
 	return $self->{dst};
 }
 
+*dport = \&dpt;
 sub dpt() {
 	my $self = shift;
 	my ($arg) = @_;
@@ -198,6 +203,7 @@ sub dpt() {
 	return $self->{dpt};
 }
 
+*sport = \&spt;
 sub spt() {
 	my $self = shift;
 	my ($arg) = @_;
@@ -236,6 +242,7 @@ sub state() {
 	return $self->{state};
 }
 
+*rate_limit = \&limit;
 sub limit() {
 	my $self = shift;
 	my ($arg) = @_;
@@ -277,6 +284,7 @@ sub comment() {
 	return $self->{comment};
 }
 
+*compile = \&generate;
 sub generate() {
 	my $self = shift;
 
