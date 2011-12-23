@@ -1,6 +1,6 @@
 package IPTables::Rule;
 
-use 5.014002;
+use 5.000000;
 use strict;
 use warnings;
 
