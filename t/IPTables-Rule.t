@@ -6,7 +6,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 155;
+use Test::More tests => 157;
 BEGIN {
 	use_ok('IPTables::Rule')
 };
@@ -177,6 +177,7 @@ my $ipt_rule = new_ok( 'IPTables::Rule' );
 	isnt( $ipt_rule->dpt($bad_named_port),			$bad_named_port,			'dst port => invalid named port' );
 	isnt( $ipt_rule->dpt($bad_named_multiport),		$bad_named_multiport,		'dst port => invalid named multiport' );
 	# test method aliases too
+	is( $ipt_rule->port($good_numeric_port),		$good_numeric_port,			'dst port alias: port' );
 	is( $ipt_rule->dport($good_numeric_port),		$good_numeric_port,			'dst port alias: dport' );
 }
 
@@ -287,6 +288,12 @@ my $ipt_rule = new_ok( 'IPTables::Rule' );
 	is( $ipt_rule->comment($good_comment3),		$good_comment3,	'valid comment 3' );
 	isnt( $ipt_rule->comment($bad_comment1),	$bad_comment1,	'invalid comment 1' );
 	isnt( $ipt_rule->comment($bad_comment2),	$bad_comment2,	'invalid comment 2' );
+}
+
+# test errstr
+{
+	$ipt_rule->logprefix($bad_logprefix2);
+	isnt( $ipt_rule->errstr,	undef,	'errstr' );
 }
 
 # test some full rules

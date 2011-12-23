@@ -42,12 +42,20 @@ sub new {
 	bless $self;
 }
 
+sub errstr() {
+	my $self = shift;
+	return $self->{errstr};
+}
+
 sub iptbinary() {
 	my $self = shift;
 	my ($arg) = @_;
 
 	if ( $arg ) {
-		return unless ( $arg =~ m|\A/.+\z| );
+		unless ( $arg =~ m|\A/.+\z| ) {
+			&__errstr($self, 'invalid path: '.$arg);
+			return;
+		}
 		$self->{iptbinary} = $arg;
 	}
 
@@ -59,7 +67,10 @@ sub iptaction() {
 	my ($arg) = @_;
 
 	if ( $arg ) {
-		return unless ( $arg =~ m/\A-[ADIRLSFZNXPE]\z/ );
+		unless ( $arg =~ m/\A-[ADIRLSFZNXPE]\z/ ) {
+			&__errstr($self, 'invalid action: '.$arg);
+			return;
+		}
 		$self->{iptaction} = $arg;
 	}
 
@@ -72,7 +83,10 @@ sub ipversion() {
 
 	if ( $arg ) {
 		# Valid arguments are 4 and 6
-		return unless ( $arg =~ m/\A[46]\z/ );
+		unless ( $arg =~ m/\A[46]\z/ ) {
+			&__errstr($self, 'invalid ip version: '.$arg);
+			return;
+		}
 
 		$self->{ipver} = $arg;
 	}
@@ -85,8 +99,13 @@ sub table() {
 	my ($arg) = @_;
 
 	if ( $arg ) {
-		return if ( $self->{ipver} == '4' and $arg !~ m/\A(filter|nat|mangle|raw)\z/i );
-		return if ( $self->{ipver} == '6' and $arg !~ m/\A(filter|mangle|raw)\z/i );
+		my $need_to_barf;
+		$need_to_barf = 1 if ( $self->{ipver} == '4' and $arg !~ m/\A(filter|nat|mangle|raw)\z/i );
+		$need_to_barf = 1 if ( $self->{ipver} == '6' and $arg !~ m/\A(filter|mangle|raw)\z/i );
+		if ( $need_to_barf ) {
+			&__errstr($self, sprintf('invalid table "%s" for ip version: %s', $arg, $self->{ipver}));
+			return;
+		}
 
 		$self->{table} = $arg;
 	}
@@ -122,7 +141,10 @@ sub proto() {
 	my ($arg) = @_;
 
 	if ( $arg ) {
-		return unless ( $arg =~ m/\A[a-z0-9]+\z/ );
+		unless ( $arg =~ m/\A[a-z0-9]+\z/ ) {
+			&__errstr($self, 'invalid protocol: '.$arg);
+			return;
+		}
 
 		$self->{proto} = $arg;
 	}
@@ -158,11 +180,14 @@ sub src() {
 	my ($arg) = @_;
 
 	if ( $arg ) {
-		return unless (
+		unless (
 			&__is_valid_inet_host($arg) or
 			&__is_valid_inet_cidr($arg) or
 			&__is_valid_inet_range($arg)
-		);
+		) {
+			&__errstr($self, 'invalid source address: '.$arg);
+			return;
+		}
 
 		$self->{src} = $arg;
 	}
@@ -177,11 +202,14 @@ sub dst() {
 	my ($arg) = @_;
 
 	if ( $arg ) {
-		return unless (
+		unless (
 			&__is_valid_inet_host($arg) or
 			&__is_valid_inet_cidr($arg) or
 			&__is_valid_inet_range($arg)
-		);
+		) {
+			&__errstr($self, 'invalid destination address: '.$arg);
+			return;
+		}
 
 		$self->{dst} = $arg;
 	}
@@ -189,13 +217,17 @@ sub dst() {
 	return $self->{dst};
 }
 
+*port = \&dpt;
 *dport = \&dpt;
 sub dpt() {
 	my $self = shift;
 	my ($arg) = @_;
 
 	if ( $arg ) {
-		return unless ( &__is_valid_inet_port($arg) );
+		unless ( &__is_valid_inet_port($arg) ) {
+			&__errstr($self, 'invalid destination port: '.$arg);
+			return;
+		}
 
 		$self->{dpt} = $arg;
 	}
@@ -209,7 +241,10 @@ sub spt() {
 	my ($arg) = @_;
 
 	if ( $arg ) {
-		return unless ( &__is_valid_inet_port($arg) );
+		unless ( &__is_valid_inet_port($arg) ) {
+			&__errstr($self, 'invalid source port: '.$arg);
+			return;
+		}
 
 		$self->{spt} = $arg;
 	}
@@ -222,7 +257,10 @@ sub mac() {
 	my ($arg) = @_;
 
 	if ( $arg ) {
-		return unless ( &__is_valid_mac_address($arg) );
+		unless ( &__is_valid_mac_address($arg) ) {
+			&__errstr($self, 'invalid mac address: '.$arg);
+			return;
+		}
 
 		$self->{mac} = $arg;
 	}
@@ -235,7 +273,10 @@ sub state() {
 	my ($arg) = @_;
 
 	if ( $arg ) {
-		return unless ( $arg =~ m/\A(NEW|ESTABLISHED|RELATED|INVALID|UNTRACKED)\z/i );
+		unless ( $arg =~ m/\A(NEW|ESTABLISHED|RELATED|INVALID|UNTRACKED)\z/i ) {
+			&__errstr($self, 'invalid connection tracking state: '.$arg);
+			return;
+		}
 		$self->{state} = $arg;
 	}
 
@@ -249,7 +290,10 @@ sub limit() {
 
 	if ( $arg ) {
 		# --limit rate[/second|/minute|/hour|/day]
-		return unless ( $arg =~ m/\A\d+\/(s(ec(ond)?)?|m(in(ute)?)?|h(our)?|d(ay)?)\z/i );
+		unless ( $arg =~ m/\A\d+\/(s(ec(ond)?)?|m(in(ute)?)?|h(our)?|d(ay)?)\z/i ) {
+			&__errstr($self, 'invalid rate limit: '.$arg);
+			return;
+		}
 		$self->{limit} = $arg;
 	}
 
@@ -260,9 +304,17 @@ sub logprefix() {
 	my $self = shift;
 	my ($arg) = @_;
 
+	my $max_length = 29;
+
 	if ( $arg ) {
-		return if ( length($arg) > 29 );
-		return if ( $arg =~ m/[\"\']/ );
+		if ( length($arg) > $max_length ) {
+			&__errstr($self, 'log prefix too long (>'.$max_length.'): '.$arg);
+			return;
+		}
+		if ( $arg =~ m/[\"\']/ ) {
+			&__errstr($self, 'quotes not permitted: '.$arg);
+			return;
+		}
 
 		$self->{logprefix} = $arg;
 	}
@@ -274,9 +326,17 @@ sub comment() {
 	my $self = shift;
 	my ($arg) = @_;
 
+	my $max_length = 256;
+
 	if ( $arg ) {
-		return if ( length($arg) > 256 );
-		return if ( $arg =~ m/[\"\']/ );
+		if ( length($arg) > $max_length ) {
+			&__errstr($self, 'comment too long (>'.$max_length.'): '.$arg);
+			return;
+		}
+		if ( $arg =~ m/[\"\']/ ) {
+			&__errstr($self, 'quotes not permitted: '.$arg);
+			return;
+		}
 
 		$self->{comment} = $arg;
 	}
@@ -289,22 +349,33 @@ sub generate() {
 	my $self = shift;
 
 	# what is required?
-	#carp('chain not defined') unless $self->{chain};
-	return unless $self->{chain};
+	unless ( $self->{chain} ) {
+		&__errstr($self, 'Chain must be specified');
+		return;
+	}
 	# ports are only valid with protocol tcp and udp
-	return if ( defined($self->{spt}) and $self->{proto} !~ m/\A(tcp|udp)\z/i );
-	return if ( defined($self->{dpt}) and $self->{proto} !~ m/\A(tcp|udp)\z/i );
+	if ( defined($self->{spt}) and $self->{proto} !~ m/\A(tcp|udp)\z/i ) {
+		&__errstr($self, 'Protocol must be TCP or UDP when specifying source port');
+		return;
+	}
+	if ( defined($self->{dpt}) and $self->{proto} !~ m/\A(tcp|udp)\z/i ) {
+		&__errstr($self, 'Protocol must be TCP or UDP when specifying destinatipn port');
+		return;
+	}
 	# cant use 'logprefix' unless the target is 'log'
-	return if ( defined($self->{logprefix}) and $self->{target} !~ m/\Alog\z/i );
+	if ( defined($self->{logprefix}) and $self->{target} !~ m/\Alog\z/i ) {
+		&__errstr($self, 'Target must be LOG when specifying log prefix');
+		return;
+	}
 
 	my $rule_prefix;
+	my $rule_criteria;
+
 	$rule_prefix = $self->{iptbinary};
 	$rule_prefix .= ' -t '.$self->{table}
 		if ( defined($self->{'table'}) );
 	$rule_prefix .= ' '.$self->{iptaction};
 	$rule_prefix .= ' '.$self->{chain};
-	my $rule_criteria;
-
 	
 	if ( defined($self->{src}) ) {
 		if ( &__is_valid_inet_host($self->{src}) or &is_valid_inet_cidr($self->{src}) ) {
@@ -541,6 +612,13 @@ sub __is_a_number() {
 	return;
 }
 
+sub __errstr() {
+	my $self = shift;
+	my $errstr = shift;
+	$self->{errstr} = $errstr;
+	return 1;
+}
+
 1;
 __END__
 
@@ -603,6 +681,5 @@ Copyright (C) 2011 by Phillip Smith
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.14.2 or,
 at your option, any later version of Perl 5 you may have available.
-
 
 =cut
