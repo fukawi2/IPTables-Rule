@@ -3,12 +3,10 @@
 
 #########################
 
-# change 'tests => 1' to 'tests => last_test_to_print';
-
 use strict;
 use warnings;
 
-use Test::More tests => 64;
+use Test::More tests => 80;
 BEGIN {
 	use_ok('IPTables::Rule')
 };
@@ -43,14 +41,6 @@ my $bad_named_multiport		= 'http/https';	# slash not a valid separator
 
 my $ipt_rule = new_ok( 'IPTables::Rule' );
 
-# test 'target' method
-{
-	is( $ipt_rule->target('ACCEPT'),	'ACCEPT',	'target ACCEPT' );
-	is( $ipt_rule->target('DROP'),		'DROP',		'target DROP' );
-	is( $ipt_rule->target('REJECT'),	'REJECT',	'target REJECT' );
-	is( $ipt_rule->target('LOG'),		'LOG',		'target LOG' );
-}
-
 # test 'ipversion' method
 {
 	is( $ipt_rule->ipversion('4'),		'4',	'ipversion 4' );
@@ -59,6 +49,34 @@ my $ipt_rule = new_ok( 'IPTables::Rule' );
 	isnt( $ipt_rule->ipversion('44'),	'44',	'ipversion 44' );
 	isnt( $ipt_rule->ipversion('66'),	'66',	'ipversion 66' );
 	isnt( $ipt_rule->ipversion('46'),	'46',	'ipversion 46' );
+}
+
+# test 'table' method
+{
+	$ipt_rule->ipversion(4);
+	is( $ipt_rule->table('filter'),	'filter',	'ip4 table filter' );
+	is( $ipt_rule->table('nat'),	'nat',		'ip4 table filter' );
+	is( $ipt_rule->table('mangle'),	'mangle',	'ip4 table filter' );
+	is( $ipt_rule->table('raw'),	'raw',		'ip4 table filter' );
+	$ipt_rule->ipversion(6);
+	is( $ipt_rule->table('filter'),	'filter',	'ip6 table filter' );
+	is( $ipt_rule->table('mangle'),	'mangle',	'ip6 table filter' );
+	is( $ipt_rule->table('raw'),	'raw',		'ip6 table filter' );
+}
+
+# test 'chain' method
+{
+	is( $ipt_rule->chain('INPUT'),	'INPUT',	'chain INPUT' );
+	is( $ipt_rule->chain('FORWARD'),'FORWARD',	'chain FORWARD' );
+	is( $ipt_rule->chain('OUTPUT'),	'OUTPUT',	'chain OUTPUT' );
+}
+
+# test 'target' method
+{
+	is( $ipt_rule->target('ACCEPT'),	'ACCEPT',	'target ACCEPT' );
+	is( $ipt_rule->target('DROP'),		'DROP',		'target DROP' );
+	is( $ipt_rule->target('REJECT'),	'REJECT',	'target REJECT' );
+	is( $ipt_rule->target('LOG'),		'LOG',		'target LOG' );
 }
 
 # test src address methods
@@ -137,4 +155,36 @@ my $ipt_rule = new_ok( 'IPTables::Rule' );
 	is( $ipt_rule->proto('udp'),	'udp',	'protocol; udp' );
 	is( $ipt_rule->proto('icmp'),	'icmp',	'protocol; icmp' );
 	is( $ipt_rule->proto('47'),		'47',	'protocol; numeric)' );
+}
+
+# test some full rules
+my $test_rule1 = '-t mangle -A cmn_SPOOF -i bond0.12 -m comment --comment "test rule 01" -j DROP';
+my $test_rule2 = '-A FORWARD -i bond0 -o bond0.16 -m conntrack --ctstate NEW -j x_LEG_WLS';
+my $test_rule3 = '-A tgt_SAMBA -p udp --dport 138 -m comment --comment "test rule 3" -j ACCEPT';
+{
+	my $rule1 = new_ok( 'IPTables::Rule' );
+	$rule1->table('nat');
+	$rule1->chain('cmn_SPOOF');
+	$rule1->target('DROP');
+	$rule1->in('bond0.12');
+	$rule1->comment('test rule 01');
+	is( $rule1->generate, $test_rule1, 'test rule 1' );
+}
+{
+	my $rule2 = new_ok( 'IPTables::Rule' );
+	$rule2->chain('FORWARD');
+	$rule2->target('x_LEG_WLS');
+	$rule2->in('bond0');
+	$rule2->out('bond0.16');
+	$rule2->state('NEW');
+	is( $rule2->generate, $test_rule2, 'test rule 2' );
+}
+{
+	my $rule3 = new_ok( 'IPTables::Rule' );
+	$rule3->chain('tgt_SAMBA');
+	$rule3->target('ACCEPT');
+	$rule3->proto('udp');
+	$rule3->dpt('138');
+	$rule3->comment('test rule 3');
+	is( $rule3->generate, $test_rule3, 'test rule 3' );
 }
