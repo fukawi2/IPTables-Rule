@@ -629,20 +629,111 @@ IPTables::Rule - Perl extension for holding iptables rule information in objects
 =head1 SYNOPSIS
 
   use IPTables::Rule;
-  blah blah blah
+
+  my $ipt_rule = new IPTables::Rule ;
+  $ipt_rule->chain('INPUT');
+  $ipt_rule->source('192.168.0.0/24');
+  $ipt_rule->protocol('tcp');
+  $ipt_rule->dport('22');
+  $ipt_rule->target('ACCEPT');
+  $ipt_rule->comment('accept ssh from lan');
+  print $ipt_rule->generate;
 
 =head1 DESCRIPTION
 
-Stub documentation for IPTables::Rule, created by h2xs. It looks like the
-author of the extension was negligent enough to leave the stub
-unedited.
+This package provides a way to build/store iptables rules in objects. It deals
+with ONLY individual rules; no attention it given to the overall structure of
+the ruleset (see L<IPTables::IPv4> or L<IPTables::IPv6> for that).
 
-Blah blah blah.
+Once all your criteria has been set, you can call the C<generate> method to
+convert the set criteria into an iptables command line string.
 
-=head2 EXPORT
+=head2 METHODS
 
-None by default.
+Methods return a value for success, or undef for failure. Errors are availabe
+using the C<errstr> method:
 
+  $ipt_rule->chain('INPUT') or print $ipt_rule->errstr;
+
+=head3 new
+
+Create a new object to hold a rule.
+
+=head3 iptbinary
+
+blah blah blah
+
+=head3 iptaction
+
+blah blah blah
+
+=head3 ipversion
+
+blah blah blah
+
+=head3 table
+
+blah blah blah
+
+=head3 chain
+
+blah blah blah
+
+=head3 target
+
+blah blah blah
+
+=head3 proto
+
+blah blah blah
+
+=head3 in
+
+blah blah blah
+
+=head3 out
+
+blah blah blah
+
+=head3 src
+
+blah blah blah
+
+=head3 dst
+
+blah blah blah
+
+=head3 dpt
+
+blah blah blah
+
+=head3 spt
+
+blah blah blah
+
+=head3 mac
+
+blah blah blah
+
+=head3 state
+
+blah blah blah
+
+=head3 limit
+
+blah blah blah
+
+=head3 logprefix
+
+blah blah blah
+
+=head3 comment
+
+blah blah blah
+
+=head3 generate
+
+blah blah blah
 
 =head1 HISTORY
 
@@ -650,29 +741,17 @@ None by default.
 
 =item 0.01
 
-Original version; created by h2xs 1.23 with options
-
-  -ACXn
-	IPTables::Rule
+Original version; created by h2xs 1.23
 
 =back
 
-
-
 =head1 SEE ALSO
 
-Mention other useful documentation such as the documentation of
-related modules or operating system documentation (such as man pages
-in UNIX), or any relevant external documentation such as RFCs or
-standards.
-
-If you have a mailing list set up for your module, mention it here.
-
-If you have a web site set up for your module, mention it here.
+L<iptables>
 
 =head1 AUTHOR
 
-Phillip Smith, E<lt>fukawi2@(none)E<gt>
+Phillip Smith, E<lt>fukawi2@gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
