@@ -20,22 +20,23 @@ my $qr_ip6_cidr	= qr/$qr_ip6_addr(\/[0-9]{1,3})?/io;
 
 sub new {
 	my $self = {
-		iptbinary => 'iptables',
-		iptaction => '-A',
-		ipver	=> 4,		# IPv4 by default
-		table	=> undef,
-		chain	=> undef,
-		target	=> undef,
-		in		=> undef,
-		out		=> undef,
-		src		=> undef,
-		dst		=> undef,
-		proto	=> undef,
-		dpt		=> undef,
-		spt		=> undef,
-		mac		=> undef,
-		state	=> undef,
-		comment	=> undef,
+		iptbinary	=> 'iptables',
+		iptaction	=> '-A',
+		ipver		=> 4,		# IPv4 by default
+		table		=> undef,
+		chain		=> undef,
+		target		=> undef,
+		in			=> undef,
+		out			=> undef,
+		src			=> undef,
+		dst			=> undef,
+		proto		=> undef,
+		dpt			=> undef,
+		spt			=> undef,
+		mac			=> undef,
+		state		=> undef,
+		comment		=> undef,
+		logprefix	=> undef,
 	};
 	
 	bless $self;
@@ -248,13 +249,27 @@ sub limit() {
 	return $self->{limit};
 }
 
+sub logprefix() {
+	my $self = shift;
+	my ($arg) = @_;
+
+	if ( $arg ) {
+		return if ( length($arg) > 29 );
+		return if ( $arg =~ m/[\"\']/ );
+
+		$self->{logprefix} = $arg;
+	}
+
+	return $self->{logprefix};
+}
+
 sub comment() {
 	my $self = shift;
 	my ($arg) = @_;
 
 	if ( $arg ) {
 		return if ( length($arg) > 256 );
-		return if ( $arg =~ m/\"/ );
+		return if ( $arg =~ m/[\"\']/ );
 
 		$self->{comment} = $arg;
 	}

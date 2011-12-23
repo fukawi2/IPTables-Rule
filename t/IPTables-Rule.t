@@ -6,7 +6,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 142;
+use Test::More tests => 147;
 BEGIN {
 	use_ok('IPTables::Rule')
 };
@@ -47,6 +47,11 @@ my $good_comment2 = 'Comment 123';
 my $good_comment3 = 'ACCEPT traffic from internet for SSH';
 my $bad_comment1 = 'This comment has "quotes" in it';	# no quotes
 my $bad_comment2 = 'A' x 257;	# too long
+my $good_logprefix1 = 'DROPPED:';
+my $good_logprefix2 = 'Script Kiddies bruteforcing';
+my $good_logprefix3 = '[SSH Accept]';
+my $bad_logprefix1 = 'This comment has "quotes" in it';	# no quotes
+my $bad_logprefix2 = 'A' x 30;	# too long
 
 my $ipt_rule = new_ok( 'IPTables::Rule' );
 
@@ -251,6 +256,15 @@ my $ipt_rule = new_ok( 'IPTables::Rule' );
 	isnt( $ipt_rule->limit('6/86400'),	'6/86400',	'invalid limit: 6/86400' );
 	isnt( $ipt_rule->limit('1 per sec'),'1 per sec','invalid limit: 1 per sec' );
 	isnt( $ipt_rule->limit('notvalid'),	'notvalid',	'invalid limit: notvalid' );
+}
+
+# test 'logprefix' method
+{
+	is( $ipt_rule->logprefix($good_logprefix1),		$good_logprefix1,	'valid logprefix 1' );
+	is( $ipt_rule->logprefix($good_logprefix2),		$good_logprefix2,	'valid logprefix 2' );
+	is( $ipt_rule->logprefix($good_logprefix3),		$good_logprefix3,	'valid logprefix 3' );
+	isnt( $ipt_rule->logprefix($bad_logprefix1),	$bad_logprefix1,	'invalid logprefix 1' );
+	isnt( $ipt_rule->logprefix($bad_logprefix2),	$bad_logprefix2,	'invalid logprefix 2' );
 }
 
 # test 'comment' method
