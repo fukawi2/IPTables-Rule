@@ -41,16 +41,47 @@ my $qr_ip6_cidr	= qr/$qr_ip6_addr(\/[0-9]{1,3})?/io;
 
 sub new {
 	my $self = {
-		target	=> undef,
 		ipver	=> 4,		# IPv4 by default
+		table	=> 'filter',
+		chain	=> undef,
+		target	=> undef,
+		in		=> undef,
+		out		=> undef,
 		src		=> undef,
 		dst		=> undef,
 		proto	=> undef,
 		dpt		=> undef,
 		spt		=> undef,
+		state	=> undef,
+		comment	=> undef,
 	};
 	
 	bless $self;
+}
+
+sub table {
+	my $self = shift;
+	my ($arg) = @_;
+
+	if ( $arg ) {
+		return if ( $self->{ipver} == '4' and $arg !~ m/\A(filter|nat|mangle|raw)\z/i );
+		return if ( $self->{ipver} == '6' and $arg !~ m/\A(filter|mangle|raw)\z/i );
+
+		$self->{table} = $arg;
+	}
+
+	return $self->{table};
+}
+
+sub chain {
+	my $self = shift;
+	my ($arg) = @_;
+
+	if ( $arg ) {
+		$self->{chain} = $arg;
+	}
+
+	return $self->{chain};
 }
 
 sub target {
@@ -89,6 +120,28 @@ sub proto {
 	}
 
 	return $self->{proto};
+}
+
+sub in {
+	my $self = shift;
+	my ($arg) = @_;
+
+	if ( $arg ) {
+		$self->{in} = $arg;
+	}
+
+	return $self->{in};
+}
+
+sub out {
+	my $self = shift;
+	my ($arg) = @_;
+
+	if ( $arg ) {
+		$self->{out} = $arg;
+	}
+
+	return $self->{out};
 }
 
 sub src {
@@ -141,6 +194,37 @@ sub spt {
 	}
 
 	return $self->{spt};
+}
+
+sub state {
+	my $self = shift;
+	my ($arg) = @_;
+
+	if ( $arg ) {
+		return unless ( $arg =~ m/\A(NEW|ESTABLISHED|RELATED|INVALID|UNTRACKED)\z/i );
+		$self->{state} = $arg;
+	}
+
+	return $self->{state};
+}
+
+sub comment {
+	my $self = shift;
+	my ($arg) = @_;
+
+	if ( $arg ) {
+		$self->{comment} = $arg;
+	}
+
+	return $self->{comment};
+}
+
+sub generate {
+	my $self = shift;
+
+	#$self->{spt};
+
+	return 'iptables -A blh blah blah';
 }
 
 ###############################################################################
