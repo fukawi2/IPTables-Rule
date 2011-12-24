@@ -759,79 +759,217 @@ Create a new object to hold a rule.
 
 =head3 iptbinary
 
-blah blah blah
+When you call L</generate>, the returned output will prefix with the generic
+string 'iptables'. Use C<iptbinary> method to change this to something more
+appropriate. For example, to use an absolute path:
+
+  $ipt_rule->iptbinary = '/usr/bin/iptables';
 
 =head3 iptaction
 
-blah blah blah
+The default action for a new rule is append (-A). Use this method to change
+this to any other valid iptables action. See L<iptables(8)/Options/Commands>
+for valid actions.
+
+Syntax is to supply the capitalized short flag:
+
+  $ipt_rule->iptaction = '-I';	# Change iptables action to 'Insert'
+  $ipt_rule->iptaction = '-Z';	# Change iptables action to 'Zero Counters'
 
 =head3 ipversion
 
-blah blah blah
+Defaults to IPv4 (ie, iptables). Valid options are '4' for IPv4/iptables, or
+'6' for IPv6/ip6tables.
+
+  $ipt_rule->ipversion = '6';
 
 =head3 table
 
-blah blah blah
+Set the table this rule applies to. By default, this is the 'filter' table.
+Valid options depend on the ipversion:
+
+IPv4: filter, nat, mangle or raw
+
+IPv6: filter, mangle or raw
 
 =head3 chain
 
-blah blah blah
+Set which chain (within L</Table>) this rule applies to. Can be either an
+inbuilt (eg, I<INPUT>, I<FORWARD>, I<OUTPUT> etc) for a user-created chain.
+
+Remember that IPTables::Rule B<ONLY> deals with individual rules so it is
+unable to validate what you provide here (ie, that the chain already exists)
 
 =head3 target
 
-blah blah blah
+The chain or action this rule should 'Jump' (-j) to if it is matched.
+
+  $ipt_rule->target = 'ACCEPT';
 
 =head3 proto
 
-blah blah blah
+Protocol to match against.
+
+  $ipt_rule->proto = 'tcp';
 
 =head3 in
 
-blah blah blah
+The input interface to match. Opposite of L</out>.
+
+  $ipt_rule->in = 'eth0';
 
 =head3 out
 
-blah blah blah
+The output interface to match. Opposite of L</in>.
 
-=head3 src
+  $ipt_rule->out = 'eth1';
 
-blah blah blah
+=head3 source
 
-=head3 dst
+Source address this rule is to match. Opposite of "destination". See
+L</VALID INET ADDRESSES> for valid values.
 
-blah blah blah
+
+  $ipt_rule->source = 'www.example.com';
+  $ipt_rule->source = '192.168.1.0/24';
+  $ipt_rule->source = 'fe80::4dc1:e674:f5e4:a74f';
+
+=head3 destination
+
+Destination address this rule is to match. Opposite of "source". See
+L</VALID INET ADDRESSES> for valid values.
+
+  $ipt_rule->destination = 'www.example.com';
+  $ipt_rule->destination = '192.168.1.0/24';
+  $ipt_rule->destination = 'fe80::4dc1:e674:f5e4:a74f';
 
 =head3 dpt
 
-blah blah blah
+Destination Port to match. Opposite of L</spt>. See L</VALID INET PORTS> for
+valid values.
+
+Protocol must be set to either 'tcp' or 'udp' for this to be valid at
+L</Generate> time.
+
+  $ipt_rule->dpt = 'http';
+  $ipt_rule->dpt = 'http,https';
+  $ipt_rule->dpt = '20:21';
 
 =head3 spt
 
-blah blah blah
+Source Port to match. Opposite of L</dpt>. See L</VALID INET PORTS> for valid
+values.
+
+Protocol must be set to either 'tcp' or 'udp' for this to be valid at
+L</Generate> time.
+
+  $ipt_rule->spt = 'http';
+  $ipt_rule->spt = 'http,https';
+  $ipt_rule->spt = '20:21';
 
 =head3 mac
 
-blah blah blah
+Source MAC Address to match against.
+
+  $ipt_rule->mac = '6c:f0:49:e8:64:2a';
 
 =head3 state
 
-blah blah blah
+Match the incoming packet against the state of the connection as tracked by the
+kernel connection tracking. Valid options are:
+
+=over 8
+
+=item * NEW
+
+=item * ESTABLISHED
+
+=item * RELATED
+
+=item * INVALID
+
+=item * UNTRACKED
+
+=back
+
+  $ipt_rule->state = 'new';
 
 =head3 limit
 
-blah blah blah
+Set a rate-limit for how often this rule will match. Syntax is S<number/period>
+where C<number> is an integer for how often, and C<period> is the time period
+to count against. Valid options for C<period> are C<second>, C<minute>,
+C<hour> and C<day>.
+
+  $ipt_rule->limit = '3/second';
+  $ipt_rule->limit = '30/minute';	# average 1 every 2 seconds
+  $ipt_rule->limit = '24/day';		# average 1 per hour
 
 =head3 logprefix
 
-blah blah blah
+When you set L</target> to the inbuilt L<LOG|iptables(8)/"TARGET EXTENSIONS">
+target, use this method to define what the log entries will be prefixed with.
+
+  $ipt_rule->logprefix = '[SSH PACKET] ';
 
 =head3 comment
 
-blah blah blah
+Add a comment to the rule to accompany it when viewing rules in iptables output
+
+  $ipt_rule->comment = 'This rule allows SSH traffic';
 
 =head3 generate
 
-blah blah blah
+Returns the "compiled" rule in iptables command line syntax after performing
+some validation on the rule criteria.
+
+  print $ipt_rule->generate;
+
+=head2 VALID INET ADDRESSES
+
+When passing addresses, valid input can be one of the following:
+
+=over 8
+
+=item * A Fully Qualified Domain Name (FQDN) (eg, C<www.example.com>)
+
+=item * An IPv4 Address (eg, C<192.168.1.1>)
+
+=item * An IPv4 Address and CIDR (eg, C<192.168.1.0/24>)
+
+=item * An IPv4 Address Range (eg, C<192.168.1.1-192.168.1.9>)
+
+=item * An IPv6 Address (eg, C<fe80::4dc1:e674:f5e4:a74f>)
+
+=item * An IPv6 Address and CIDR (eg, C<fe80::4dc1:e674:f5e4:a74f/10>)
+
+=item * An IPv6 Address Range (eg, C<fe80::4dc1:e674:f5e4:0000-fe80::4dc1:e674:f5e4:ffff>)
+
+=back
+
+=head2 VALID INET PORTS
+
+When specifying destination or source ports, valid input can be one of the following:
+
+=over 8
+
+=item * A numeric port (eg, 80)
+
+=item * A named port (eg, http)
+
+=item * A numeric port range, colon separated (eg, 20:21)
+
+=item * A named port range, colon separated (eg, ftp-data:ftp)
+
+=item * A list of comma separated numeric ports (eg, 25,110,143)
+
+=item * A list of comma separated named ports (eg, smtp,pop3,imap)
+
+=back
+
+B<NOTE>: When using named ports, iptables/ip6tables will attempt to resolve
+them using the file F</etc/services> so valid named ports must exist within
+this file.
 
 =head1 HISTORY
 
