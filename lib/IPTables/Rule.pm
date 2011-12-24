@@ -63,12 +63,12 @@ sub new {
 	bless $self;
 }
 
-sub errstr() {
+sub errstr {
 	my $self = shift;
 	return $self->{errstr};
 }
 
-sub iptbinary() {
+sub iptbinary {
 	my $self = shift;
 	my ($arg) = @_;
 
@@ -83,7 +83,7 @@ sub iptbinary() {
 	return $self->{iptbinary};
 }
 
-sub iptaction() {
+sub iptaction {
 	my $self = shift;
 	my ($arg) = @_;
 
@@ -98,7 +98,7 @@ sub iptaction() {
 	return $self->{iptaction};
 }
 
-sub ipversion() {
+sub ipversion {
 	my $self = shift;
 	my ($arg) = @_;
 
@@ -115,7 +115,7 @@ sub ipversion() {
 	return $self->{ipver};
 }
 
-sub table() {
+sub table {
 	my $self = shift;
 	my ($arg) = @_;
 
@@ -134,7 +134,7 @@ sub table() {
 	return $self->{table};
 }
 
-sub chain() {
+sub chain {
 	my $self = shift;
 	my ($arg) = @_;
 
@@ -145,7 +145,7 @@ sub chain() {
 	return $self->{chain};
 }
 
-sub target() {
+sub target {
 	my $self = shift;
 	my ($arg) = @_;
 
@@ -157,7 +157,7 @@ sub target() {
 }
 
 *protocol = \&proto;
-sub proto() {
+sub proto {
 	my $self = shift;
 	my ($arg) = @_;
 
@@ -173,7 +173,7 @@ sub proto() {
 	return $self->{proto};
 }
 
-sub in() {
+sub in {
 	my $self = shift;
 	my ($arg) = @_;
 
@@ -184,7 +184,7 @@ sub in() {
 	return $self->{in};
 }
 
-sub out() {
+sub out {
 	my $self = shift;
 	my ($arg) = @_;
 
@@ -196,7 +196,7 @@ sub out() {
 }
 
 *source = \&src;
-sub src() {
+sub src {
 	my $self = shift;
 	my ($arg) = @_;
 
@@ -218,7 +218,7 @@ sub src() {
 
 *dest = \&dst;
 *destination = \&dst;
-sub dst() {
+sub dst {
 	my $self = shift;
 	my ($arg) = @_;
 
@@ -240,7 +240,7 @@ sub dst() {
 
 *port = \&dpt;
 *dport = \&dpt;
-sub dpt() {
+sub dpt {
 	my $self = shift;
 	my ($arg) = @_;
 
@@ -257,7 +257,7 @@ sub dpt() {
 }
 
 *sport = \&spt;
-sub spt() {
+sub spt {
 	my $self = shift;
 	my ($arg) = @_;
 
@@ -273,7 +273,7 @@ sub spt() {
 	return $self->{spt};
 }
 
-sub mac() {
+sub mac {
 	my $self = shift;
 	my ($arg) = @_;
 
@@ -289,7 +289,7 @@ sub mac() {
 	return $self->{mac};
 }
 
-sub state() {
+sub state {
 	my $self = shift;
 	my ($arg) = @_;
 
@@ -305,7 +305,7 @@ sub state() {
 }
 
 *rate_limit = \&limit;
-sub limit() {
+sub limit {
 	my $self = shift;
 	my ($arg) = @_;
 
@@ -321,7 +321,7 @@ sub limit() {
 	return $self->{limit};
 }
 
-sub logprefix() {
+sub logprefix {
 	my $self = shift;
 	my ($arg) = @_;
 
@@ -343,7 +343,7 @@ sub logprefix() {
 	return $self->{logprefix};
 }
 
-sub comment() {
+sub comment {
 	my $self = shift;
 	my ($arg) = @_;
 
@@ -366,7 +366,7 @@ sub comment() {
 }
 
 *compile = \&generate;
-sub generate() {
+sub generate {
 	my $self = shift;
 
 	# what is required?
@@ -507,7 +507,7 @@ sub generate() {
 # All sub named should be prefixed with double underslash (__) to indicate they
 # are internal use only.
 
-sub __is_valid_mac_address() {
+sub __is_valid_mac_address {
 	my ( $arg ) = @_;
 	chomp($arg);
 
@@ -521,7 +521,7 @@ sub __is_valid_mac_address() {
 	return;
 }
 
-sub __is_valid_inet4() {
+sub __is_valid_inet4 {
 	my ( $arg ) = @_;
 	chomp($arg);
 
@@ -543,7 +543,7 @@ sub __is_valid_inet4() {
 	return;
 }
 
-sub __is_valid_inet6() {
+sub __is_valid_inet6 {
 	my ( $arg ) = @_;
 	chomp($arg);
 
@@ -565,7 +565,7 @@ sub __is_valid_inet6() {
 	return;
 }
 
-sub __is_valid_inet_host() {
+sub __is_valid_inet_host {
 	my ( $arg ) = @_;
 	chomp($arg);
 
@@ -584,7 +584,7 @@ sub __is_valid_inet_host() {
 	return;
 }
 
-sub __is_inet4_host() {
+sub __is_inet4_host {
 	my ( $arg ) = @_;
 	chomp($arg);
 
@@ -597,7 +597,7 @@ sub __is_inet4_host() {
 	return;
 }
 
-sub __is_inet6_host() {
+sub __is_inet6_host {
 	my ( $arg ) = @_;
 	chomp($arg);
 
@@ -610,7 +610,7 @@ sub __is_inet6_host() {
 	return;
 }
 
-sub __is_valid_inet_cidr() {
+sub __is_valid_inet_cidr {
 	my ( $arg ) = @_;
 	chomp($arg);
 
@@ -626,7 +626,7 @@ sub __is_valid_inet_cidr() {
 	return;
 }
 
-sub __is_inet4_cidr() {
+sub __is_inet4_cidr {
 	my ( $arg ) = @_;
 	chomp($arg);
 
@@ -646,7 +646,7 @@ sub __is_inet4_cidr() {
 	return;
 }
 
-sub __is_inet6_cidr() {
+sub __is_inet6_cidr {
 	my ( $arg ) = @_;
 	chomp($arg);
 
@@ -666,7 +666,7 @@ sub __is_inet6_cidr() {
 	return;
 }
 
-sub __is_valid_inet_range() {
+sub __is_valid_inet_range {
 	my ( $arg ) = @_;
 	chomp($arg);
 
@@ -682,7 +682,7 @@ sub __is_valid_inet_range() {
 	return;
 }
 
-sub __is_inet4_range() {
+sub __is_inet4_range {
 	my ( $arg ) = @_;
 	chomp($arg);
 
@@ -697,7 +697,7 @@ sub __is_inet4_range() {
 	return;
 }
 
-sub __is_inet6_range() {
+sub __is_inet6_range {
 	my ( $arg ) = @_;
 	chomp($arg);
 
@@ -712,7 +712,7 @@ sub __is_inet6_range() {
 	return;
 }
 
-sub __is_valid_inet_port() {
+sub __is_valid_inet_port {
 	my ( $arg ) = @_;
 	chomp($arg);
 
@@ -784,13 +784,13 @@ sub __is_valid_inet_port() {
 	return;
 }
 
-sub __is_a_number() {
+sub __is_a_number {
 	my ( $arg) = @_;
 	return 1 if ( $arg =~ /\A-?\d+\z/);
 	return;
 }
 
-sub __errstr() {
+sub __errstr {
 	my $self = shift;
 	my $errstr = shift;
 	$self->{errstr} = $errstr;
