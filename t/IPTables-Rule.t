@@ -6,7 +6,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 157;
+use Test::More tests => 161;
 BEGIN {
 	use_ok('IPTables::Rule')
 };
@@ -328,4 +328,20 @@ my $test_rule3 = 'iptables -A tgt_SAMBA -p udp --dport 138 -m comment --comment 
 	$rule3->dpt('138');
 	$rule3->comment('test rule 3');
 	is( $rule3->generate, $test_rule3, 'test rule 3' );
+}
+{
+	my $rule4 = new_ok( 'IPTables::Rule' );
+	$rule4->chain('INPUT');
+	$rule4->target('ACCEPT');
+	$rule4->ipversion(4);
+	$rule4->src('fe80::20d:61ff:fec5:cebc/64');
+	is( $rule4->generate, undef, 'test rule 4' );
+}
+{
+	my $rule5 = new_ok( 'IPTables::Rule' );
+	$rule5->chain('INPUT');
+	$rule5->target('ACCEPT');
+	$rule5->ipversion(6);
+	$rule5->src('192.168.0.1');
+	is( $rule5->generate, undef, 'test rule 5' );
 }
