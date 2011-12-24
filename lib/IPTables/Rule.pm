@@ -388,6 +388,42 @@ sub generate() {
 		&__errstr($self, 'Target must be LOG when specifying log prefix');
 		return;
 	}
+	# ipversion matches the source/dest addresses?
+	if ( $self->{ipver} eq '4' ) {
+		if ( $self->{src} ) {
+			# make sure it's ipv4
+			unless ( &__is_valid_inet4($self->{src}) ) {
+				&__errstr($self, 'IP Version is 4 but source is not valid IPv4');
+				return;
+			}
+		}
+		if ( $self->{dst} ) {
+			# make sure it's ipv4
+			unless ( &__is_valid_inet4($self->{dst}) ) {
+				&__errstr($self, 'IP Version is 4 but destination is not valid IPv4');
+				return;
+			}
+		}
+	} elsif ( $self->{ipver} eq '6' ) {
+		if ( $self->{src} ) {
+			# make sure it's ipv6
+			unless ( &__is_valid_inet6($self->{src}) ) {
+				&__errstr($self, 'IP Version is 6 but source is not valid IPv6');
+				return;
+			}
+		}
+		if ( $self->{dst} ) {
+			# make sure it's ipv6
+			unless ( &__is_valid_inet6($self->{dst}) ) {
+				&__errstr($self, 'IP Version is 6 but destination is not valid IPv6');
+				return;
+			}
+		}
+	} else {
+		# should never happen; the ipversion sub validates user input
+		&__errstr($self, 'Code bug 0x01; Please report to developer.');
+		return;
+	}
 
 	my $rule_prefix;
 	my $rule_criteria;
@@ -480,6 +516,50 @@ sub __is_valid_mac_address() {
 	if ( $arg =~ m/\A$qr_mac_addr\z/ ) {
 		return 1;
 	}
+
+	# fail by default
+	return;
+}
+
+sub __is_valid_inet4() {
+	my ( $arg ) = @_;
+	chomp($arg);
+
+	return unless ( $arg );
+
+	# ipv4 address?
+	return 1 if ( &__is_inet4_host($arg) );
+
+	# ipv4 cidr?
+	return 1 if ( &__is_inet4_cidr($arg) );
+
+	# ipv4 range?
+	return 1 if ( &__is_inet4_range($arg) );
+
+	# fqdn?
+	return 1 if ( $arg =~ m/\A$qr_fqdn\z/ );
+
+	# fail by default
+	return;
+}
+
+sub __is_valid_inet6() {
+	my ( $arg ) = @_;
+	chomp($arg);
+
+	return unless ( $arg );
+
+	# ipv6 address?
+	return 1 if ( &__is_inet6_host($arg) );
+
+	# ipv4 cidr?
+	return 1 if ( &__is_inet6_cidr($arg) );
+
+	# ipv4 range?
+	return 1 if ( &__is_inet6_range($arg) );
+
+	# fqdn?
+	return 1 if ( $arg =~ m/\A$qr_fqdn\z/ );
 
 	# fail by default
 	return;
