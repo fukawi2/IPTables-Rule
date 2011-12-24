@@ -492,10 +492,10 @@ sub __is_valid_inet_host() {
 	return unless ( $arg );
 
 	# ipv4 address?
-	return 1 if ( $arg =~ m/\A$qr_ip4_addr\z/ );
+	return 1 if ( &__is_inet4_host($arg) );
 
 	# ipv6 address?
-	return 1 if ( $arg =~ m/\A$qr_ip6_addr\z/ );
+	return 1 if ( &__is_inet6_host($arg) );
 
 	# fqdn?
 	return 1 if ( $arg =~ m/\A$qr_fqdn\z/ );
@@ -504,7 +504,49 @@ sub __is_valid_inet_host() {
 	return;
 }
 
+sub __is_inet4_host() {
+	my ( $arg ) = @_;
+	chomp($arg);
+
+	return unless ( $arg );
+
+	# ipv4 address?
+	return 1 if ( $arg =~ m/\A$qr_ip4_addr\z/ );
+
+	# fail by default
+	return;
+}
+
+sub __is_inet6_host() {
+	my ( $arg ) = @_;
+	chomp($arg);
+
+	return unless ( $arg );
+
+	# ipv6 address?
+	return 1 if ( $arg =~ m/\A$qr_ip6_addr\z/ );
+
+	# fail by default
+	return;
+}
+
 sub __is_valid_inet_cidr() {
+	my ( $arg ) = @_;
+	chomp($arg);
+
+	return unless ( $arg );
+
+	# ipv4 cidr?
+	return 1 if ( &__is_inet4_cidr($arg) );
+
+	# ipv6 cidr?
+	return 1 if ( &__is_inet6_cidr($arg) );
+
+	# fail by default
+	return;
+}
+
+sub __is_inet4_cidr() {
 	my ( $arg ) = @_;
 	chomp($arg);
 
@@ -520,6 +562,16 @@ sub __is_valid_inet_cidr() {
 		return 1;
 	}
 
+	# fail by default
+	return;
+}
+
+sub __is_inet6_cidr() {
+	my ( $arg ) = @_;
+	chomp($arg);
+
+	return unless ( $arg );
+
 	# ipv6 cidr?
 	if ( $arg =~ m/\A$qr_ip6_cidr\z/ ) {
 		# validate the cidr
@@ -527,7 +579,6 @@ sub __is_valid_inet_cidr() {
 		return if ( $cidr < 0 );
 		return if ( $cidr > 128 );
 
-		return 1;
 		return 1;
 	}
 
@@ -542,9 +593,35 @@ sub __is_valid_inet_range() {
 	return unless ( $arg );
 
 	# ipv4 address range?
+	return 1 if ( &__is_inet4_range($arg) );
+
+	# ipv6 address range?
+	return 1 if ( &__is_inet6_range($arg) );
+
+	# fail by default
+	return;
+}
+
+sub __is_inet4_range() {
+	my ( $arg ) = @_;
+	chomp($arg);
+
+	return unless ( $arg );
+
+	# ipv4 address range?
 	return 1 if (
 		$arg =~ m/\A$qr_ip4_addr\-$qr_ip4_addr\z/
 	);
+
+	# fail by default
+	return;
+}
+
+sub __is_inet6_range() {
+	my ( $arg ) = @_;
+	chomp($arg);
+
+	return unless ( $arg );
 
 	# ipv6 address range?
 	return 1 if (
