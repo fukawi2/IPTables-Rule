@@ -429,11 +429,11 @@ sub generate {
 	my $rule_criteria;
 
 	$rule_prefix = $self->{iptbinary};
-	$rule_prefix .= ' -t '.$self->{table}
-		if ( defined($self->{'table'}) );
+	$rule_prefix .= ' -t '.$self->{table} if ( defined($self->{'table'}) );
 	$rule_prefix .= ' '.$self->{iptaction};
 	$rule_prefix .= ' '.$self->{chain};
 	
+	# Source and Destination Addresses
 	if ( defined($self->{src}) ) {
 		if ( __is_valid_inet_host($self->{src}) or &is_valid_inet_cidr($self->{src}) ) {
 			$rule_criteria .= sprintf(' -s %s', $self->{src});
@@ -451,10 +451,7 @@ sub generate {
 		}
 	}
 	
-	$rule_criteria .= sprintf(' -i %s', $self->{in})	if ( defined($self->{in}) );
-	$rule_criteria .= sprintf(' -o %s', $self->{out})	if ( defined($self->{out}) );
-	$rule_criteria .= sprintf(' -p %s', $self->{proto})	if ( defined($self->{proto}) );
-
+	# Source and Destination Ports
 	if ( defined($self->{spt}) ) {
 		if ( $self->{spt} =~ m/\A\w+\z/ ) {
 			# just a single port
@@ -484,14 +481,15 @@ sub generate {
 		}
 	}
 
+	$rule_criteria .= sprintf(' -i %s',						$self->{in})		if ( defined($self->{in}) );
+	$rule_criteria .= sprintf(' -o %s',						$self->{out})		if ( defined($self->{out}) );
+	$rule_criteria .= sprintf(' -p %s',						$self->{proto})		if ( defined($self->{proto}) );
 	$rule_criteria .= sprintf(' -m mac --mac-source %s',	$self->{mac})		if ( defined($self->{mac}) );
 	$rule_criteria .= sprintf(' -m conntrack --ctstate %s', $self->{state})		if ( defined($self->{state}) );
 	$rule_criteria .= sprintf(' -m comment --comment "%s"', $self->{comment})	if ( defined($self->{comment}) );
 	$rule_criteria .= sprintf(' -m limit --limit %s',		$self->{limit})		if ( defined($self->{limit}) );
-
-	$rule_criteria .= sprintf(' -j %s', $self->{'target'})	if ( defined($self->{'target'}) );
-
-	$rule_criteria .= sprintf(' --log-prefix "[%s] "',	$self->{logprefix})	if ( defined($self->{logprefix}) );
+	$rule_criteria .= sprintf(' -j %s',						$self->{'target'})	if ( defined($self->{'target'}) );
+	$rule_criteria .= sprintf(' --log-prefix "[%s] "',		$self->{logprefix})	if ( defined($self->{logprefix}) );
 
 #	$ipt_rule .= sprintf(' -m statistic %s',			$criteria{'statistic'})	if (defined($criteria{'statistic'}));
 #	$ipt_rule .= sprintf(' -m time %s',					$criteria{'time'})		if (defined($criteria{'time'}));
