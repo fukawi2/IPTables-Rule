@@ -74,7 +74,7 @@ sub iptbinary {
 
 	if ( $arg ) {
 		unless ( $arg =~ m|\A/.+\z| ) {
-			&__errstr($self, 'invalid path: '.$arg);
+			__errstr($self, 'invalid path: '.$arg);
 			return;
 		}
 		$self->{iptbinary} = $arg;
@@ -89,7 +89,7 @@ sub iptaction {
 
 	if ( $arg ) {
 		unless ( $arg =~ m/\A-[ADIRLSFZNXPE]\z/ ) {
-			&__errstr($self, 'invalid action: '.$arg);
+			__errstr($self, 'invalid action: '.$arg);
 			return;
 		}
 		$self->{iptaction} = $arg;
@@ -105,7 +105,7 @@ sub ipversion {
 	if ( $arg ) {
 		# Valid arguments are 4 and 6
 		unless ( $arg =~ m/\A[46]\z/ ) {
-			&__errstr($self, 'invalid ip version: '.$arg);
+			__errstr($self, 'invalid ip version: '.$arg);
 			return;
 		}
 
@@ -124,7 +124,7 @@ sub table {
 		$need_to_barf = 1 if ( $self->{ipver} == '4' and $arg !~ m/\A(filter|nat|mangle|raw)\z/i );
 		$need_to_barf = 1 if ( $self->{ipver} == '6' and $arg !~ m/\A(filter|mangle|raw)\z/i );
 		if ( $need_to_barf ) {
-			&__errstr($self, sprintf('invalid table "%s" for ip version: %s', $arg, $self->{ipver}));
+			__errstr($self, sprintf('invalid table "%s" for ip version: %s', $arg, $self->{ipver}));
 			return;
 		}
 
@@ -163,7 +163,7 @@ sub proto {
 
 	if ( $arg ) {
 		unless ( $arg =~ m/\A[a-z0-9]+\z/ ) {
-			&__errstr($self, 'invalid protocol: '.$arg);
+			__errstr($self, 'invalid protocol: '.$arg);
 			return;
 		}
 
@@ -202,11 +202,11 @@ sub src {
 
 	if ( $arg ) {
 		unless (
-			&__is_valid_inet_host($arg) or
-			&__is_valid_inet_cidr($arg) or
-			&__is_valid_inet_range($arg)
+			__is_valid_inet_host($arg) or
+			__is_valid_inet_cidr($arg) or
+			__is_valid_inet_range($arg)
 		) {
-			&__errstr($self, 'invalid source address: '.$arg);
+			__errstr($self, 'invalid source address: '.$arg);
 			return;
 		}
 
@@ -224,11 +224,11 @@ sub dst {
 
 	if ( $arg ) {
 		unless (
-			&__is_valid_inet_host($arg) or
-			&__is_valid_inet_cidr($arg) or
-			&__is_valid_inet_range($arg)
+			__is_valid_inet_host($arg) or
+			__is_valid_inet_cidr($arg) or
+			__is_valid_inet_range($arg)
 		) {
-			&__errstr($self, 'invalid destination address: '.$arg);
+			__errstr($self, 'invalid destination address: '.$arg);
 			return;
 		}
 
@@ -245,8 +245,8 @@ sub dpt {
 	my ($arg) = @_;
 
 	if ( $arg ) {
-		unless ( &__is_valid_inet_port($arg) ) {
-			&__errstr($self, 'invalid destination port: '.$arg);
+		unless ( __is_valid_inet_port($arg) ) {
+			__errstr($self, 'invalid destination port: '.$arg);
 			return;
 		}
 
@@ -262,8 +262,8 @@ sub spt {
 	my ($arg) = @_;
 
 	if ( $arg ) {
-		unless ( &__is_valid_inet_port($arg) ) {
-			&__errstr($self, 'invalid source port: '.$arg);
+		unless ( __is_valid_inet_port($arg) ) {
+			__errstr($self, 'invalid source port: '.$arg);
 			return;
 		}
 
@@ -278,8 +278,8 @@ sub mac {
 	my ($arg) = @_;
 
 	if ( $arg ) {
-		unless ( &__is_valid_mac_address($arg) ) {
-			&__errstr($self, 'invalid mac address: '.$arg);
+		unless ( __is_valid_mac_address($arg) ) {
+			__errstr($self, 'invalid mac address: '.$arg);
 			return;
 		}
 
@@ -295,7 +295,7 @@ sub state {
 
 	if ( $arg ) {
 		unless ( $arg =~ m/\A(NEW|ESTABLISHED|RELATED|INVALID|UNTRACKED)\z/i ) {
-			&__errstr($self, 'invalid connection tracking state: '.$arg);
+			__errstr($self, 'invalid connection tracking state: '.$arg);
 			return;
 		}
 		$self->{state} = $arg;
@@ -312,7 +312,7 @@ sub limit {
 	if ( $arg ) {
 		# --limit rate[/second|/minute|/hour|/day]
 		unless ( $arg =~ m/\A\d+\/(s(ec(ond)?)?|m(in(ute)?)?|h(our)?|d(ay)?)\z/i ) {
-			&__errstr($self, 'invalid rate limit: '.$arg);
+			__errstr($self, 'invalid rate limit: '.$arg);
 			return;
 		}
 		$self->{limit} = $arg;
@@ -329,11 +329,11 @@ sub logprefix {
 
 	if ( $arg ) {
 		if ( length($arg) > $max_length ) {
-			&__errstr($self, 'log prefix too long (>'.$max_length.'): '.$arg);
+			__errstr($self, 'log prefix too long (>'.$max_length.'): '.$arg);
 			return;
 		}
 		if ( $arg =~ m/[\"\']/ ) {
-			&__errstr($self, 'quotes not permitted: '.$arg);
+			__errstr($self, 'quotes not permitted: '.$arg);
 			return;
 		}
 
@@ -351,11 +351,11 @@ sub comment {
 
 	if ( $arg ) {
 		if ( length($arg) > $max_length ) {
-			&__errstr($self, 'comment too long (>'.$max_length.'): '.$arg);
+			__errstr($self, 'comment too long (>'.$max_length.'): '.$arg);
 			return;
 		}
 		if ( $arg =~ m/[\"\']/ ) {
-			&__errstr($self, 'quotes not permitted: '.$arg);
+			__errstr($self, 'quotes not permitted: '.$arg);
 			return;
 		}
 
@@ -371,57 +371,57 @@ sub generate {
 
 	# what is required?
 	unless ( $self->{chain} ) {
-		&__errstr($self, 'Chain must be specified');
+		__errstr($self, 'Chain must be specified');
 		return;
 	}
 	# ports are only valid with protocol tcp and udp
 	if ( defined($self->{spt}) and $self->{proto} !~ m/\A(tcp|udp)\z/i ) {
-		&__errstr($self, 'Protocol must be TCP or UDP when specifying source port');
+		__errstr($self, 'Protocol must be TCP or UDP when specifying source port');
 		return;
 	}
 	if ( defined($self->{dpt}) and $self->{proto} !~ m/\A(tcp|udp)\z/i ) {
-		&__errstr($self, 'Protocol must be TCP or UDP when specifying destinatipn port');
+		__errstr($self, 'Protocol must be TCP or UDP when specifying destinatipn port');
 		return;
 	}
 	# cant use 'logprefix' unless the target is 'log'
 	if ( defined($self->{logprefix}) and $self->{target} !~ m/\Alog\z/i ) {
-		&__errstr($self, 'Target must be LOG when specifying log prefix');
+		__errstr($self, 'Target must be LOG when specifying log prefix');
 		return;
 	}
 	# ipversion matches the source/dest addresses?
 	if ( $self->{ipver} eq '4' ) {
 		if ( $self->{src} ) {
 			# make sure it's ipv4
-			unless ( &__is_valid_inet4($self->{src}) ) {
-				&__errstr($self, 'IP Version is 4 but source is not valid IPv4');
+			unless ( __is_valid_inet4($self->{src}) ) {
+				__errstr($self, 'IP Version is 4 but source is not valid IPv4');
 				return;
 			}
 		}
 		if ( $self->{dst} ) {
 			# make sure it's ipv4
-			unless ( &__is_valid_inet4($self->{dst}) ) {
-				&__errstr($self, 'IP Version is 4 but destination is not valid IPv4');
+			unless ( __is_valid_inet4($self->{dst}) ) {
+				__errstr($self, 'IP Version is 4 but destination is not valid IPv4');
 				return;
 			}
 		}
 	} elsif ( $self->{ipver} eq '6' ) {
 		if ( $self->{src} ) {
 			# make sure it's ipv6
-			unless ( &__is_valid_inet6($self->{src}) ) {
-				&__errstr($self, 'IP Version is 6 but source is not valid IPv6');
+			unless ( __is_valid_inet6($self->{src}) ) {
+				__errstr($self, 'IP Version is 6 but source is not valid IPv6');
 				return;
 			}
 		}
 		if ( $self->{dst} ) {
 			# make sure it's ipv6
-			unless ( &__is_valid_inet6($self->{dst}) ) {
-				&__errstr($self, 'IP Version is 6 but destination is not valid IPv6');
+			unless ( __is_valid_inet6($self->{dst}) ) {
+				__errstr($self, 'IP Version is 6 but destination is not valid IPv6');
 				return;
 			}
 		}
 	} else {
 		# should never happen; the ipversion sub validates user input
-		&__errstr($self, 'Code bug 0x01; Please report to developer.');
+		__errstr($self, 'Code bug 0x01; Please report to developer.');
 		return;
 	}
 
@@ -435,18 +435,18 @@ sub generate {
 	$rule_prefix .= ' '.$self->{chain};
 	
 	if ( defined($self->{src}) ) {
-		if ( &__is_valid_inet_host($self->{src}) or &is_valid_inet_cidr($self->{src}) ) {
+		if ( __is_valid_inet_host($self->{src}) or &is_valid_inet_cidr($self->{src}) ) {
 			$rule_criteria .= sprintf(' -s %s', $self->{src});
 		}
-		if ( &__is_valid_inet_range($self->{src}) ) {
+		if ( __is_valid_inet_range($self->{src}) ) {
 			$rule_criteria .= sprintf(' -m iprange --src-range %s',	$self->{'src'});
 		}
 	}
 	if ( defined($self->{dst}) ) {
-		if ( &__is_valid_inet_host($self->{dst}) or &is_valid_inet_cidr($self->{dst}) ) {
+		if ( __is_valid_inet_host($self->{dst}) or &is_valid_inet_cidr($self->{dst}) ) {
 			$rule_criteria .= sprintf(' -d %s', $self->{dst});
 		}
-		if ( &__is_valid_inet_range($self->{dst}) ) {
+		if ( __is_valid_inet_range($self->{dst}) ) {
 			$rule_criteria .= sprintf(' -m iprange --dst-range %s',	$self->{'dst'});
 		}
 	}
@@ -528,13 +528,13 @@ sub __is_valid_inet4 {
 	return unless ( $arg );
 
 	# ipv4 address?
-	return 1 if ( &__is_inet4_host($arg) );
+	return 1 if ( __is_inet4_host($arg) );
 
 	# ipv4 cidr?
-	return 1 if ( &__is_inet4_cidr($arg) );
+	return 1 if ( __is_inet4_cidr($arg) );
 
 	# ipv4 range?
-	return 1 if ( &__is_inet4_range($arg) );
+	return 1 if ( __is_inet4_range($arg) );
 
 	# fqdn?
 	return 1 if ( $arg =~ m/\A$qr_fqdn\z/ );
@@ -550,13 +550,13 @@ sub __is_valid_inet6 {
 	return unless ( $arg );
 
 	# ipv6 address?
-	return 1 if ( &__is_inet6_host($arg) );
+	return 1 if ( __is_inet6_host($arg) );
 
 	# ipv4 cidr?
-	return 1 if ( &__is_inet6_cidr($arg) );
+	return 1 if ( __is_inet6_cidr($arg) );
 
 	# ipv4 range?
-	return 1 if ( &__is_inet6_range($arg) );
+	return 1 if ( __is_inet6_range($arg) );
 
 	# fqdn?
 	return 1 if ( $arg =~ m/\A$qr_fqdn\z/ );
@@ -572,10 +572,10 @@ sub __is_valid_inet_host {
 	return unless ( $arg );
 
 	# ipv4 address?
-	return 1 if ( &__is_inet4_host($arg) );
+	return 1 if ( __is_inet4_host($arg) );
 
 	# ipv6 address?
-	return 1 if ( &__is_inet6_host($arg) );
+	return 1 if ( __is_inet6_host($arg) );
 
 	# fqdn?
 	return 1 if ( $arg =~ m/\A$qr_fqdn\z/ );
@@ -617,10 +617,10 @@ sub __is_valid_inet_cidr {
 	return unless ( $arg );
 
 	# ipv4 cidr?
-	return 1 if ( &__is_inet4_cidr($arg) );
+	return 1 if ( __is_inet4_cidr($arg) );
 
 	# ipv6 cidr?
-	return 1 if ( &__is_inet6_cidr($arg) );
+	return 1 if ( __is_inet6_cidr($arg) );
 
 	# fail by default
 	return;
@@ -673,10 +673,10 @@ sub __is_valid_inet_range {
 	return unless ( $arg );
 
 	# ipv4 address range?
-	return 1 if ( &__is_inet4_range($arg) );
+	return 1 if ( __is_inet4_range($arg) );
 
 	# ipv6 address range?
-	return 1 if ( &__is_inet6_range($arg) );
+	return 1 if ( __is_inet6_range($arg) );
 
 	# fail by default
 	return;
@@ -719,7 +719,7 @@ sub __is_valid_inet_port {
 	return unless ( $arg );
 
 	# just a numeric port?
-	if ( &__is_a_number($arg) ) {
+	if ( __is_a_number($arg) ) {
 		return if ( $arg < 0 );
 		return if ( $arg > 65535 );
 
@@ -736,8 +736,8 @@ sub __is_valid_inet_port {
 		my ( $lower, $upper) = split(/:/, $arg, 2);
 
 		# recursive call to this sub to validate individal ports in multiport
-		return unless ( &__is_valid_inet_port($lower) );
-		return unless ( &__is_valid_inet_port($upper) );
+		return unless ( __is_valid_inet_port($lower) );
+		return unless ( __is_valid_inet_port($upper) );
 
 		# lower is higher than upper?
 		return if ( $upper < $lower );
@@ -750,8 +750,8 @@ sub __is_valid_inet_port {
 		my ( $lower, $upper) = split(/:/, $arg, 2);
 
 		# recursive call to this sub to validate individal ports in multiport
-		return unless ( &__is_valid_inet_port($lower) );
-		return unless ( &__is_valid_inet_port($upper) );
+		return unless ( __is_valid_inet_port($lower) );
+		return unless ( __is_valid_inet_port($upper) );
 
 		return 1;
 	}
@@ -762,7 +762,7 @@ sub __is_valid_inet_port {
 
 		foreach my $port ( @ports ) {
 			# recursive call to this sub to validate individal ports in multiport
-			return unless ( &__is_valid_inet_port($port) );
+			return unless ( __is_valid_inet_port($port) );
 		}
 
 		return 1;
@@ -774,7 +774,7 @@ sub __is_valid_inet_port {
 
 		foreach my $port ( @ports ) {
 			# recursive call to this sub to validate individal ports in multiport
-			return unless ( &__is_valid_inet_port($port) );
+			return unless ( __is_valid_inet_port($port) );
 		}
 
 		return 1;
