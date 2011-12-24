@@ -843,7 +843,7 @@ When you call L</generate>, the returned output will prefix with the generic
 string 'iptables'. Use C<iptbinary> method to change this to something more
 appropriate. For example, to use an absolute path:
 
-  $ipt_rule->iptbinary = '/usr/bin/iptables';
+  $ipt_rule->iptbinary('/usr/bin/iptables');
 
 =head3 iptaction
 
@@ -853,15 +853,15 @@ for valid actions.
 
 Syntax is to supply the capitalized short flag:
 
-  $ipt_rule->iptaction = '-I';	# Change iptables action to 'Insert'
-  $ipt_rule->iptaction = '-Z';	# Change iptables action to 'Zero Counters'
+  $ipt_rule->iptaction('-I');	# Change iptables action to 'Insert'
+  $ipt_rule->iptaction('-Z');	# Change iptables action to 'Zero Counters'
 
 =head3 ipversion
 
 Defaults to IPv4 (ie, iptables). Valid options are '4' for IPv4/iptables, or
 '6' for IPv6/ip6tables.
 
-  $ipt_rule->ipversion = '6';
+  $ipt_rule->ipversion('6');
 
 =head3 table
 
@@ -884,25 +884,25 @@ unable to validate what you provide here (ie, that the chain already exists)
 
 The chain or action this rule should 'Jump' (-j) to if it is matched.
 
-  $ipt_rule->target = 'ACCEPT';
+  $ipt_rule->target('ACCEPT');
 
 =head3 proto
 
 Protocol to match against.
 
-  $ipt_rule->proto = 'tcp';
+  $ipt_rule->proto('tcp');
 
 =head3 in
 
 The input interface to match. Opposite of L</out>.
 
-  $ipt_rule->in = 'eth0';
+  $ipt_rule->in('eth0');
 
 =head3 out
 
 The output interface to match. Opposite of L</in>.
 
-  $ipt_rule->out = 'eth1';
+  $ipt_rule->out('eth1');
 
 =head3 source
 
@@ -910,18 +910,18 @@ Source address this rule is to match. Opposite of "destination". See
 L</VALID INET ADDRESSES> for valid values.
 
 
-  $ipt_rule->source = 'www.example.com';
-  $ipt_rule->source = '192.168.1.0/24';
-  $ipt_rule->source = 'fe80::4dc1:e674:f5e4:a74f';
+  $ipt_rule->source('www.example.com');
+  $ipt_rule->source('192.168.1.0/24');
+  $ipt_rule->source('fe80::4dc1:e674:f5e4:a74f');
 
 =head3 destination
 
 Destination address this rule is to match. Opposite of "source". See
 L</VALID INET ADDRESSES> for valid values.
 
-  $ipt_rule->destination = 'www.example.com';
-  $ipt_rule->destination = '192.168.1.0/24';
-  $ipt_rule->destination = 'fe80::4dc1:e674:f5e4:a74f';
+  $ipt_rule->destination('www.example.com');
+  $ipt_rule->destination('192.168.1.0/24');
+  $ipt_rule->destination('fe80::4dc1:e674:f5e4:a74f');
 
 =head3 dpt
 
@@ -931,9 +931,9 @@ valid values.
 Protocol must be set to either 'tcp' or 'udp' for this to be valid at
 L</Generate> time.
 
-  $ipt_rule->dpt = 'http';
-  $ipt_rule->dpt = 'http,https';
-  $ipt_rule->dpt = '20:21';
+  $ipt_rule->dpt('http');
+  $ipt_rule->dpt('http,https');
+  $ipt_rule->dpt('20:21');
 
 =head3 spt
 
@@ -943,15 +943,15 @@ values.
 Protocol must be set to either 'tcp' or 'udp' for this to be valid at
 L</Generate> time.
 
-  $ipt_rule->spt = 'http';
-  $ipt_rule->spt = 'http,https';
-  $ipt_rule->spt = '20:21';
+  $ipt_rule->spt('http');
+  $ipt_rule->spt('http,https');
+  $ipt_rule->spt('20:21');
 
 =head3 mac
 
 Source MAC Address to match against.
 
-  $ipt_rule->mac = '6c:f0:49:e8:64:2a';
+  $ipt_rule->mac('6c:f0:49:e8:64:2a');
 
 =head3 state
 
@@ -972,7 +972,7 @@ kernel connection tracking. Valid options are:
 
 =back
 
-  $ipt_rule->state = 'new';
+  $ipt_rule->state('new');
 
 =head3 limit
 
@@ -981,29 +981,29 @@ where C<number> is an integer for how often, and C<period> is the time period
 to count against. Valid options for C<period> are C<second>, C<minute>,
 C<hour> and C<day>.
 
-  $ipt_rule->limit = '3/second';
-  $ipt_rule->limit = '30/minute';	# average 1 every 2 seconds
-  $ipt_rule->limit = '24/day';		# average 1 per hour
+  $ipt_rule->limit('3/second');
+  $ipt_rule->limit('30/minute');	# average 1 every 2 seconds
+  $ipt_rule->limit('24/day');		# average 1 per hour
 
 =head3 logprefix
 
 When you set L</target> to the inbuilt L<LOG|iptables(8)/"TARGET EXTENSIONS">
 target, use this method to define what the log entries will be prefixed with.
 
-  $ipt_rule->logprefix = '[SSH PACKET] ';
+  $ipt_rule->logprefix('[SSH PACKET] ');
 
 =head3 comment
 
 Add a comment to the rule to accompany it when viewing rules in iptables output
 
-  $ipt_rule->comment = 'This rule allows SSH traffic';
+  $ipt_rule->comment('This rule allows SSH traffic');
 
 =head3 generate
 
 Returns the "compiled" rule in iptables command line syntax after performing
 some validation on the rule criteria.
 
-  print $ipt_rule->generate;
+  print $ipt_rule->generate();
 
 =head2 VALID INET ADDRESSES
 
