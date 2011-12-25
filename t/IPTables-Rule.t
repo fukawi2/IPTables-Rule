@@ -6,7 +6,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 179;
+use Test::More tests => 192;
 BEGIN {
 	use_ok('IPTables::Rule')
 };
@@ -285,6 +285,28 @@ my $bad_logprefix2 = 'A' x 30;	# too long
 	isnt( $ipt_rule->limit('notvalid'),	'notvalid',	'invalid limit: notvalid' );
 	# test method aliases too
 	is( $ipt_rule->rate_limit('1/s'),	'1/s',		'limit alias: rate_limit' );
+}
+
+# test 'icmp_type' method
+{
+	my $ipt_rule = new_ok( 'IPTables::Rule' );
+	$ipt_rule->ipversion('4');
+	$ipt_rule->protocol('icmp');
+	isnt( $ipt_rule->protocol('icmpv6'),				'icmpv6',					'ipver 4 != protocol icmpv6' );
+	is( $ipt_rule->icmp_type('echo-request'),			'echo-request',				'icmp_type: named type' );
+	is( $ipt_rule->icmp_type('redirect/host-redirect'),	'redirect/host-redirect',	'icmp_type: named type/subtype' );
+	is( $ipt_rule->icmp_type('3'),						'3',						'icmp_type: numeric type' );
+	is( $ipt_rule->icmp_type('3/1'),					'3/1',						'icmp_type: numeric type/subtype' );
+	isnt( $ipt_rule->icmp_type('1/2/3'),				'1/2/3',					'icmp_type: invalid string' );
+
+	$ipt_rule->ipversion('6');
+	$ipt_rule->protocol('icmpv6');
+	isnt( $ipt_rule->protocol('icmp'),					'icmp',						'ipver 6 != protocol icmp' );
+	is( $ipt_rule->icmp_type('echo-request'),			'echo-request',				'icmpv6_type: named type' );
+	is( $ipt_rule->icmp_type('redirect/host-redirect'),	'redirect/host-redirect',	'icmpv6_type: named type/subtype' );
+	is( $ipt_rule->icmp_type('3'),						'3',						'icmpv6_type: numeric type' );
+	is( $ipt_rule->icmp_type('3/1'),					'3/1',						'icmpv6_type: numeric type/subtype' );
+	isnt( $ipt_rule->icmp_type('1/2/3'),				'1/2/3',					'icmpv6_type: invalid string' );
 }
 
 # test 'logprefix' method

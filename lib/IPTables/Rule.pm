@@ -335,7 +335,7 @@ sub icmp_type {
 	my ($arg) = @_;
 
 	if ( $arg ) {
-		unless ( $arg =~ m/\A[a-z0-9]+\z/ ) {
+		unless ( $arg =~ m|\A[a-z0-9\-]+(/[a-z0-9\-]+)?\z|i ) {
 			__errstr($self, 'invalid icmp type: '.$arg);
 			return;
 		}
