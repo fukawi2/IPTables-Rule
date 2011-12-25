@@ -168,8 +168,6 @@ sub proto {
 			return;
 		}
 		if ( $self->{ipver} eq '6' and $arg eq 'icmp' ) {
-			print STDERR 'ipver: '.$self->{ipver};
-			print STDERR 'arg:   '.$arg;
 			__errstr($self, 'icmp not valid protocol for IPv6. Perhaps you meant "icmpv6"?');
 			return;
 		}
