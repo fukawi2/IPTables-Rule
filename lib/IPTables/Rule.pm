@@ -166,6 +166,16 @@ sub proto {
 			__errstr($self, 'invalid protocol: '.$arg);
 			return;
 		}
+		if ( $self->{ipver} eq '6' and $arg eq 'icmp' ) {
+			print STDERR 'ipver: '.$self->{ipver};
+			print STDERR 'arg:   '.$arg;
+			__errstr($self, 'icmp not valid protocol for IPv6. Perhaps you meant "icmpv6"?');
+			return;
+		}
+		if ( $self->{ipver} eq '4' and $arg eq 'icmpv6' ) {
+			__errstr($self, 'icmpv6 not valid protocol for IPv4. Perhaps you meant "icmp"?');
+			return;
+		}
 
 		$self->{proto} = $arg;
 	}
@@ -321,6 +331,22 @@ sub limit {
 	return $self->{limit};
 }
 
+sub icmp_type {
+	my $self = shift;
+	my ($arg) = @_;
+
+	if ( $arg ) {
+		unless ( $arg =~ m/\A[a-z0-9]+\z/ ) {
+			__errstr($self, 'invalid icmp type: '.$arg);
+			return;
+		}
+
+		$self->{icmp_type} = $arg;
+	}
+
+	return $self->{icmp_type};
+}
+
 sub logprefix {
 	my $self = shift;
 	my ($arg) = @_;
@@ -424,6 +450,11 @@ sub generate {
 		__errstr($self, 'Code bug 0x01; Please report to developer.');
 		return;
 	}
+	# if icmp_type is set, protocol must be icmp or icmpv6
+	if ( defined($self->{icmp_type}) and $self->{proto} !~ m/\Aicmp(v6)?\z/i ) {
+		__errstr($self, 'icmp_type is set, but protocol is: '.$self->{proto});
+		return;
+	}
 
 	my $rule_prefix;
 	my $rule_criteria;
@@ -486,6 +517,7 @@ sub generate {
 	$rule_criteria .= sprintf(' -p %s',						$self->{proto})		if ( defined($self->{proto}) );
 	$rule_criteria .= sprintf(' -m mac --mac-source %s',	$self->{mac})		if ( defined($self->{mac}) );
 	$rule_criteria .= sprintf(' -m conntrack --ctstate %s', $self->{state})		if ( defined($self->{state}) );
+	$rule_criteria .= sprintf(' --icmp-type %s',			$self->{icmp_type})	if ( defined($self->{icmp_type}) );
 	$rule_criteria .= sprintf(' -m comment --comment "%s"', $self->{comment})	if ( defined($self->{comment}) );
 	$rule_criteria .= sprintf(' -m limit --limit %s',		$self->{limit})		if ( defined($self->{limit}) );
 	$rule_criteria .= sprintf(' -j %s',						$self->{'target'})	if ( defined($self->{'target'}) );
