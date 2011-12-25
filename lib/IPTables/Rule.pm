@@ -896,6 +896,12 @@ Syntax is to supply the capitalized short flag:
   $ipt_rule->iptaction('-I');	# Change iptables action to 'Insert'
   $ipt_rule->iptaction('-Z');	# Change iptables action to 'Zero Counters'
 
+=head3 dump
+
+Returns a hash-ref of the current rule details.
+
+  my $hashref = $ipt_rule->dump();
+
 =head3 ipversion
 
 Defaults to IPv4 (ie, iptables). Valid options are '4' for IPv4/iptables, or
@@ -1024,6 +1030,20 @@ C<hour> and C<day>.
   $ipt_rule->limit('3/second');
   $ipt_rule->limit('30/minute');	# average 1 every 2 seconds
   $ipt_rule->limit('24/day');		# average 1 per hour
+
+=head3 icmp_type
+
+Specify the ICMP type (and optionally sub-type) to match against. Protocol must
+be set to 'icmp' (or 'icmpv6' for IPv6) to use this method. For valid types,
+run C<iptables -m icmp --help>
+
+Type and sub-type can be passed either numerically or named. If specifying a
+sub-type, it must be separated with a forward slash ('/').
+
+  $ipt_rule->icmp_type('echo-request');
+  $ipt_rule->icmp_type('redirect/host-redirect');
+  $ipt_rule->icmp_type('3');
+  $ipt_rule->icmp_type('3/1');
 
 =head3 logprefix
 
