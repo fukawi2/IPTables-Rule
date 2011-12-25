@@ -43,7 +43,7 @@ sub new {
 	my $self = {
 		iptbinary	=> 'iptables',
 		iptaction	=> '-A',
-		ipver		=> 4,		# IPv4 by default
+		ipver		=> '4',		# IPv4 by default
 		table		=> undef,
 		chain		=> undef,
 		target		=> undef,
@@ -58,8 +58,9 @@ sub new {
 		state		=> undef,
 		comment		=> undef,
 		logprefix	=> undef,
+		icmp_type	=> undef,
 	};
-	
+
 	bless $self;
 }
 
@@ -121,8 +122,8 @@ sub table {
 
 	if ( $arg ) {
 		my $need_to_barf;
-		$need_to_barf = 1 if ( $self->{ipver} == '4' and $arg !~ m/\A(filter|nat|mangle|raw)\z/i );
-		$need_to_barf = 1 if ( $self->{ipver} == '6' and $arg !~ m/\A(filter|mangle|raw)\z/i );
+		$need_to_barf = 1 if ( $self->{ipver} eq '4' and $arg !~ m/\A(filter|nat|mangle|raw)\z/i );
+		$need_to_barf = 1 if ( $self->{ipver} eq '6' and $arg !~ m/\A(filter|mangle|raw)\z/i );
 		if ( $need_to_barf ) {
 			__errstr($self, sprintf('invalid table "%s" for ip version: %s', $arg, $self->{ipver}));
 			return;

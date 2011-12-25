@@ -6,7 +6,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 161;
+use Test::More tests => 179;
 BEGIN {
 	use_ok('IPTables::Rule')
 };
@@ -53,10 +53,10 @@ my $good_logprefix3 = '[SSH Accept]';
 my $bad_logprefix1 = 'This comment has "quotes" in it';	# no quotes
 my $bad_logprefix2 = 'A' x 30;	# too long
 
-my $ipt_rule = new_ok( 'IPTables::Rule' );
 
 # test 'iptbinary' method
 {
+	my $ipt_rule = new_ok( 'IPTables::Rule' );
 	is( $ipt_rule->iptbinary('/usr/sbin/iptables'),	'/usr/sbin/iptables',	'valid iptbinary 1' );
 	is( $ipt_rule->iptbinary('/sbin/iptables'),		'/sbin/iptables',		'valid iptbinary 2' );
 	isnt( $ipt_rule->iptbinary('sbin/iptables'),	'sbin/iptables',		'invalid iptbinary: not absolute' );
@@ -64,6 +64,7 @@ my $ipt_rule = new_ok( 'IPTables::Rule' );
 
 # test 'iptaction' method
 {
+	my $ipt_rule = new_ok( 'IPTables::Rule' );
 	is( $ipt_rule->iptaction('-A'),	'-A',	'iptaction: -A' );	# Append Rule
 	is( $ipt_rule->iptaction('-D'),	'-D',	'iptaction: -D' );	# Delete Rule
 	is( $ipt_rule->iptaction('-I'),	'-I',	'iptaction: -I' );	# Insert Rule
@@ -82,6 +83,7 @@ my $ipt_rule = new_ok( 'IPTables::Rule' );
 
 # test 'ipversion' method
 {
+	my $ipt_rule = new_ok( 'IPTables::Rule' );
 	is( $ipt_rule->ipversion('4'),		'4',	'ipversion 4' );
 	is( $ipt_rule->ipversion('6'),		'6',	'ipversion 6' );
 	isnt( $ipt_rule->ipversion('x'),	'x',	'ipversion x' );
@@ -92,6 +94,7 @@ my $ipt_rule = new_ok( 'IPTables::Rule' );
 
 # test 'table' method
 {
+	my $ipt_rule = new_ok( 'IPTables::Rule' );
 	$ipt_rule->ipversion(4);
 	is( $ipt_rule->table('filter'),	'filter',	'ip4 table filter' );
 	is( $ipt_rule->table('nat'),	'nat',		'ip4 table filter' );
@@ -105,6 +108,7 @@ my $ipt_rule = new_ok( 'IPTables::Rule' );
 
 # test 'chain' method
 {
+	my $ipt_rule = new_ok( 'IPTables::Rule' );
 	is( $ipt_rule->chain('INPUT'),	'INPUT',	'chain INPUT' );
 	is( $ipt_rule->chain('FORWARD'),'FORWARD',	'chain FORWARD' );
 	is( $ipt_rule->chain('OUTPUT'),	'OUTPUT',	'chain OUTPUT' );
@@ -112,6 +116,7 @@ my $ipt_rule = new_ok( 'IPTables::Rule' );
 
 # test 'target' method
 {
+	my $ipt_rule = new_ok( 'IPTables::Rule' );
 	is( $ipt_rule->target('ACCEPT'),	'ACCEPT',	'target ACCEPT' );
 	is( $ipt_rule->target('DROP'),		'DROP',		'target DROP' );
 	is( $ipt_rule->target('REJECT'),	'REJECT',	'target REJECT' );
@@ -120,6 +125,7 @@ my $ipt_rule = new_ok( 'IPTables::Rule' );
 
 # test src address methods
 {
+	my $ipt_rule = new_ok( 'IPTables::Rule' );
 	# test valid arguments succeed
 	is( $ipt_rule->src($good_fqdn),				$good_fqdn,				'src addr => valid FQDN' );
 	is( $ipt_rule->src($good_ipv4_addr),		$good_ipv4_addr,		'src addr => valid IPv4' );
@@ -142,6 +148,7 @@ my $ipt_rule = new_ok( 'IPTables::Rule' );
 
 # test dst address methods
 {
+	my $ipt_rule = new_ok( 'IPTables::Rule' );
 	# test valid arguments succeed
 	is( $ipt_rule->dst($good_fqdn),				$good_fqdn,				'dst addr => valid FQDN' );
 	is( $ipt_rule->dst($good_ipv4_addr),		$good_ipv4_addr,		'dst addr => valid IPv4' );
@@ -165,6 +172,7 @@ my $ipt_rule = new_ok( 'IPTables::Rule' );
 
 # test dst port methods
 {
+	my $ipt_rule = new_ok( 'IPTables::Rule' );
 	is( $ipt_rule->dpt($good_numeric_port),			$good_numeric_port,			'dst port => valid numeric port' );
 	is( $ipt_rule->dpt($good_numeric_port_range),	$good_numeric_port_range,	'dst port => valid numeric port range' );
 	is( $ipt_rule->dpt($good_multiport),			$good_multiport,			'dst port => valid numeric multiport' );
@@ -183,6 +191,7 @@ my $ipt_rule = new_ok( 'IPTables::Rule' );
 
 # test src port methods
 {
+	my $ipt_rule = new_ok( 'IPTables::Rule' );
 	is( $ipt_rule->spt($good_numeric_port),			$good_numeric_port,			'src port => valid numeric port' );
 	is( $ipt_rule->spt($good_numeric_port_range),	$good_numeric_port_range,	'src port => valid numeric port range' );
 	is( $ipt_rule->spt($good_multiport),			$good_multiport,			'src port => valid numeric multiport' );
@@ -200,6 +209,7 @@ my $ipt_rule = new_ok( 'IPTables::Rule' );
 
 # test 'protocol' method
 {
+	my $ipt_rule = new_ok( 'IPTables::Rule' );
 	is( $ipt_rule->proto('tcp'),	'tcp',	'proto; tcp' );
 	is( $ipt_rule->proto('udp'),	'udp',	'proto; udp' );
 	is( $ipt_rule->proto('icmp'),	'icmp',	'proto; icmp' );
@@ -210,6 +220,7 @@ my $ipt_rule = new_ok( 'IPTables::Rule' );
 
 # test 'in' method
 {
+	my $ipt_rule = new_ok( 'IPTables::Rule' );
 	is( $ipt_rule->in('eth0'),		'eth0',		'in interface: eth0' );		# Normal
 	is( $ipt_rule->in('eth11'),		'eth11',	'in interface: eth11' );	# Lots of eths
 	is( $ipt_rule->in('tun0'),		'tun0',		'in interface: tun0' );		# TUN
@@ -221,6 +232,7 @@ my $ipt_rule = new_ok( 'IPTables::Rule' );
 
 # test 'out' method
 {
+	my $ipt_rule = new_ok( 'IPTables::Rule' );
 	is( $ipt_rule->out('eth0'),		'eth0',		'in interface: eth0' );		# Normal
 	is( $ipt_rule->out('eth11'),	'eth11',	'in interface: eth11' );	# Lots of eths
 	is( $ipt_rule->out('tun0'),		'tun0',		'in interface: tun0' );		# TUN
@@ -232,6 +244,7 @@ my $ipt_rule = new_ok( 'IPTables::Rule' );
 
 # test 'mac' method
 {
+	my $ipt_rule = new_ok( 'IPTables::Rule' );
 	is( $ipt_rule->mac($good_mac),		$good_mac,	'valid mac addr' );
 	isnt( $ipt_rule->mac($bad_mac1),	$bad_mac1,	'invalid mac addr 1' );
 	isnt( $ipt_rule->mac($bad_mac2),	$bad_mac2,	'invalid mac addr 2' );
@@ -240,6 +253,7 @@ my $ipt_rule = new_ok( 'IPTables::Rule' );
 
 # test 'state' method
 {
+	my $ipt_rule = new_ok( 'IPTables::Rule' );
 	# Note we test a mix of UPPER and lower case; it shouldn't matter to the method
 	is( $ipt_rule->state('NEW'),			'NEW',			'state: new' );
 	is( $ipt_rule->state('established'),	'established',	'state: established' );
@@ -251,6 +265,7 @@ my $ipt_rule = new_ok( 'IPTables::Rule' );
 
 # test 'limit' method
 {
+	my $ipt_rule = new_ok( 'IPTables::Rule' );
 	# Note we test a mix of UPPER and lower case; it shouldn't matter to the method
 	is( $ipt_rule->limit('1/s'),		'1/s',		'valid limit: 1/s' );
 	is( $ipt_rule->limit('1/sec'),		'1/sec',	'valid limit: 1/sec' );
@@ -274,6 +289,7 @@ my $ipt_rule = new_ok( 'IPTables::Rule' );
 
 # test 'logprefix' method
 {
+	my $ipt_rule = new_ok( 'IPTables::Rule' );
 	is( $ipt_rule->logprefix($good_logprefix1),		$good_logprefix1,	'valid logprefix 1' );
 	is( $ipt_rule->logprefix($good_logprefix2),		$good_logprefix2,	'valid logprefix 2' );
 	is( $ipt_rule->logprefix($good_logprefix3),		$good_logprefix3,	'valid logprefix 3' );
@@ -283,6 +299,7 @@ my $ipt_rule = new_ok( 'IPTables::Rule' );
 
 # test 'comment' method
 {
+	my $ipt_rule = new_ok( 'IPTables::Rule' );
 	is( $ipt_rule->comment($good_comment1),		$good_comment1,	'valid comment 1' );
 	is( $ipt_rule->comment($good_comment2),		$good_comment2,	'valid comment 2' );
 	is( $ipt_rule->comment($good_comment3),		$good_comment3,	'valid comment 3' );
@@ -292,14 +309,16 @@ my $ipt_rule = new_ok( 'IPTables::Rule' );
 
 # test errstr
 {
+	my $ipt_rule = new_ok( 'IPTables::Rule' );
 	$ipt_rule->logprefix($bad_logprefix2);
 	isnt( $ipt_rule->errstr,	undef,	'errstr' );
 }
 
+###############################################################################
 # test some full rules
 my $test_rule1 = 'iptables -t mangle -A cmn_SPOOF -i bond0.12 -m comment --comment "test rule 01" -j DROP';
 my $test_rule2 = 'iptables -A FORWARD -i bond0 -o bond0.16 -m conntrack --ctstate NEW -j x_LEG_WLS';
-my $test_rule3 = 'iptables -A tgt_SAMBA -p udp --dport 138 -m comment --comment "test rule 3" -j ACCEPT';
+my $test_rule3 = 'iptables -A tgt_SAMBA --dport 138 -p udp -m comment --comment "test rule 3" -j ACCEPT';
 {
 	my $rule1 = new_ok( 'IPTables::Rule' );
 	$rule1->table('mangle');
