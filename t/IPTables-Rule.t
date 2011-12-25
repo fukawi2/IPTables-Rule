@@ -6,7 +6,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 192;
+use Test::More tests => 197;
 BEGIN {
 	use_ok('IPTables::Rule')
 };
@@ -334,6 +334,19 @@ my $bad_logprefix2 = 'A' x 30;	# too long
 	my $ipt_rule = new_ok( 'IPTables::Rule' );
 	$ipt_rule->logprefix($bad_logprefix2);
 	isnt( $ipt_rule->errstr,	undef,	'errstr' );
+}
+
+# test dump
+{
+	my $ipt_rule = new_ok( 'IPTables::Rule' );
+	$ipt_rule->protocol('tcp');
+	$ipt_rule->port('80');
+	$ipt_rule->target('ACCEPT');
+	my $dump_hash_ref = $ipt_rule->dump();
+	is( $dump_hash_ref->{proto},	'tcp',		'dump() test: proto' );
+	is( $dump_hash_ref->{dpt},		'80',		'dump() test: dpt' );
+	is( $dump_hash_ref->{target},	'ACCEPT',	'dump() test: target' );
+	is( $dump_hash_ref->{comment},	undef,		'dump() test: undefed' );
 }
 
 ###############################################################################

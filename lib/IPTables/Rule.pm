@@ -64,6 +64,17 @@ sub new {
 	bless $self;
 }
 
+sub dump {
+	my $self = shift;
+	my %dump_hash;
+
+	foreach my $key ( keys %$self ) {
+		$dump_hash{$key} = $self->{$key} if ( defined($self->{$key}) );
+	}
+
+	return \%dump_hash;
+}
+
 sub errstr {
 	my $self = shift;
 	return $self->{errstr};
