@@ -6,7 +6,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 197;
+use Test::More tests => 201;
 BEGIN {
 	use_ok('IPTables::Rule')
 };
@@ -255,12 +255,16 @@ my $bad_logprefix2 = 'A' x 30;	# too long
 {
 	my $ipt_rule = new_ok( 'IPTables::Rule' );
 	# Note we test a mix of UPPER and lower case; it shouldn't matter to the method
-	is( $ipt_rule->state('NEW'),			'NEW',			'state: new' );
-	is( $ipt_rule->state('established'),	'established',	'state: established' );
-	is( $ipt_rule->state('Related'),		'Related',		'state: related' );
-	is( $ipt_rule->state('InVaLiD'),		'InVaLiD',		'state: invalid' );
-	is( $ipt_rule->state('UNtracked'),		'UNtracked',	'state: untracked' );
-	isnt( $ipt_rule->state('MOO'),			'MOO',			'invalid state' );
+	is( $ipt_rule->state('NEW'),          'NEW',          'state: new' );
+	is( $ipt_rule->state('established'),  'established',  'state: established' );
+	is( $ipt_rule->state('Related'),      'Related',      'state: related' );
+	is( $ipt_rule->state('InVaLiD'),      'InVaLiD',      'state: invalid' );
+	is( $ipt_rule->state('UNtracked'),    'UNtracked',    'state: untracked' );
+	is( $ipt_rule->state('ESTABLISHED,RELATED'),'ESTABLISHED,RELATED',    'state: established or related' );
+	is( $ipt_rule->state('new,ESTABLISHED'),    'new,ESTABLISHED',        'state: new or established');
+	isnt( $ipt_rule->state('FOOBAR'),			      'FOOBAR',		        'invalid state' );
+	isnt( $ipt_rule->state('HAPPY,FUN,BALLS'),	'HAPPY,FUN,BALLS',	'invalid state' );
+	isnt( $ipt_rule->state('INVALID,FOOBAR'),	  'INVALID,FOOBAR',	  'invalid state' );
 }
 
 # test 'limit' method
