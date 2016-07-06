@@ -314,9 +314,12 @@ sub state {
 	my ($arg) = @_;
 
 	if ( $arg ) {
-		unless ( $arg =~ m/\A(NEW|ESTABLISHED|RELATED|INVALID|UNTRACKED)\z/i ) {
-			__errstr($self, 'invalid connection tracking state: '.$arg);
-			return;
+		my @states = split(",",$arg);
+		for (@states) {
+			unless ( $_ =~ m/\A(NEW|ESTABLISHED|RELATED|INVALID|UNTRACKED)\z/i ) {
+				__errstr($self, 'invalid connection tracking state: '.$_);
+				return;
+			}
 		}
 		$self->{state} = $arg;
 	}
