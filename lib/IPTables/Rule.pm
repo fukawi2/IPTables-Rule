@@ -479,7 +479,7 @@ sub generate {
 	
 	# Source and Destination Addresses
 	if ( defined($self->{src}) ) {
-		if ( __is_valid_inet_host($self->{src}) or &is_valid_inet_cidr($self->{src}) ) {
+		if ( __is_valid_inet_host($self->{src}) or __is_valid_inet_cidr($self->{src}) ) {
 			$rule_criteria .= sprintf(' -s %s', $self->{src});
 		}
 		if ( __is_valid_inet_range($self->{src}) ) {
@@ -487,7 +487,7 @@ sub generate {
 		}
 	}
 	if ( defined($self->{dst}) ) {
-		if ( __is_valid_inet_host($self->{dst}) or &is_valid_inet_cidr($self->{dst}) ) {
+		if ( __is_valid_inet_host($self->{dst}) or __is_valid_inet_cidr($self->{dst}) ) {
 			$rule_criteria .= sprintf(' -d %s', $self->{dst});
 		}
 		if ( __is_valid_inet_range($self->{dst}) ) {
