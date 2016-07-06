@@ -1,4 +1,4 @@
-IPTables-Rule version 0.01
+IPTables-Rule version 0.02
 ==========================
 
 IPTables::Rule is for holding netfilter rule criteria in objects.
@@ -24,7 +24,7 @@ This module requires these other modules and libraries:
 
 COPYRIGHT AND LICENCE
 
-Copyright (C) 2011 by Phillip Smith
+Copyright (C) 2011-2016 by Phillip Smith
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.14.2 or,

@@ -4,7 +4,7 @@ use 5.000000;
 use strict;
 use warnings;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 ###############################################################################
 ### PRECOMPILED REGEX
@@ -1118,6 +1118,10 @@ this file.
 
 =over 8
 
+=item 0.02
+
+Allow multiple states to be used (comma-delimed). Typo fixed in function call.
+
 =item 0.01
 
 Original version; created by h2xs 1.23
@@ -1134,7 +1138,7 @@ Phillip Smith, E<lt>fukawi2@gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2011 by Phillip Smith
+Copyright (C) 2011-2016 by Phillip Smith
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.14.2 or,
