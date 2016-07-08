@@ -494,6 +494,10 @@ sub generate {
 			$rule_criteria .= sprintf(' -m iprange --dst-range %s',	$self->{'dst'});
 		}
 	}
+
+  # this needs to be written out before we output the src/dst port (if they are present)
+  # otherwise iptables/ip6tables complains at the command.
+	$rule_criteria .= sprintf(' -p %s', $self->{proto}) if ( defined($self->{proto}) );
 	
 	# Source and Destination Ports
 	if ( defined($self->{spt}) ) {
@@ -527,7 +531,6 @@ sub generate {
 
 	$rule_criteria .= sprintf(' -i %s',						$self->{in})		if ( defined($self->{in}) );
 	$rule_criteria .= sprintf(' -o %s',						$self->{out})		if ( defined($self->{out}) );
-	$rule_criteria .= sprintf(' -p %s',						$self->{proto})		if ( defined($self->{proto}) );
 	$rule_criteria .= sprintf(' -m mac --mac-source %s',	$self->{mac})		if ( defined($self->{mac}) );
 	$rule_criteria .= sprintf(' -m conntrack --ctstate %s', $self->{state})		if ( defined($self->{state}) );
 	$rule_criteria .= sprintf(' --icmp-type %s',			$self->{icmp_type})	if ( defined($self->{icmp_type}) );

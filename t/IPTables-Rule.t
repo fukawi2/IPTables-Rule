@@ -357,7 +357,7 @@ my $bad_logprefix2 = 'A' x 30;	# too long
 # test some full rules
 my $test_rule1 = 'iptables -t mangle -A cmn_SPOOF -i bond0.12 -m comment --comment "test rule 01" -j DROP';
 my $test_rule2 = 'iptables -A FORWARD -i bond0 -o bond0.16 -m conntrack --ctstate NEW -j x_LEG_WLS';
-my $test_rule3 = 'iptables -A tgt_SAMBA --dport 138 -p udp -m comment --comment "test rule 3" -j ACCEPT';
+my $test_rule3 = 'iptables -A tgt_SAMBA -p udp --dport 138 -m comment --comment "test rule 3" -j ACCEPT';
 {
 	my $rule1 = new_ok( 'IPTables::Rule' );
 	$rule1->table('mangle');
