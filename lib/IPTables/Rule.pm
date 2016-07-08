@@ -4,7 +4,7 @@ use 5.000000;
 use strict;
 use warnings;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 ###############################################################################
 ### PRECOMPILED REGEX
@@ -1145,6 +1145,10 @@ this file.
 =head1 HISTORY
 
 =over 8
+
+=item 0.03
+
+Add 'ip6binary' method, and fix bug in output with src/dst ports.
 
 =item 0.02
 

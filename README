@@ -1,4 +1,4 @@
-IPTables-Rule version 0.02
+IPTables-Rule version 0.03
 ==========================
 
 IPTables::Rule is for holding netfilter rule criteria in objects.
