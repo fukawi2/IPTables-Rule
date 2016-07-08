@@ -6,7 +6,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 201;
+use Test::More tests => 205;
 BEGIN {
 	use_ok('IPTables::Rule')
 };
@@ -54,12 +54,19 @@ my $bad_logprefix1 = 'This comment has "quotes" in it';	# no quotes
 my $bad_logprefix2 = 'A' x 30;	# too long
 
 
-# test 'iptbinary' method
+# test 'ip4binary' method
 {
 	my $ipt_rule = new_ok( 'IPTables::Rule' );
-	is( $ipt_rule->iptbinary('/usr/sbin/iptables'),	'/usr/sbin/iptables',	'valid iptbinary 1' );
-	is( $ipt_rule->iptbinary('/sbin/iptables'),		'/sbin/iptables',		'valid iptbinary 2' );
-	isnt( $ipt_rule->iptbinary('sbin/iptables'),	'sbin/iptables',		'invalid iptbinary: not absolute' );
+	is( $ipt_rule->ip4binary('/usr/sbin/iptables'), '/usr/sbin/iptables', 'valid ip4binary 1' );
+	is( $ipt_rule->ip4binary('/sbin/iptables'),     '/sbin/iptables',     'valid ip4binary 2' );
+	isnt( $ipt_rule->ip4binary('sbin/iptables'),    'sbin/iptables',      'invalid ip4binary: not absolute' );
+}
+# test 'ip6binary' method
+{
+	my $ipt_rule = new_ok( 'IPTables::Rule' );
+	is( $ipt_rule->ip6binary('/usr/sbin/ip6tables'),  '/usr/sbin/ip6tables',  'valid ip6binary 1' );
+	is( $ipt_rule->ip6binary('/sbin/ip6tables'),      '/sbin/ip6tables',      'valid ip6binary 2' );
+	isnt( $ipt_rule->ip6binary('sbin/ip6tables'),     'sbin/ip6tables',       'invalid ip6binary: not absolute' );
 }
 
 # test 'iptaction' method

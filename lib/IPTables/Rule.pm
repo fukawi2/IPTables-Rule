@@ -41,7 +41,8 @@ my $qr_ip6_cidr	= qr/$qr_ip6_addr\/[0-9]{1,3}/io;
 
 sub new {
 	my $self = {
-		iptbinary	=> 'iptables',
+		ip4binary	=> 'iptables',
+		ip6binary	=> 'ip6tables',
 		iptaction	=> '-A',
 		ipver		=> '4',		# IPv4 by default
 		table		=> undef,
@@ -80,7 +81,7 @@ sub errstr {
 	return $self->{errstr};
 }
 
-sub iptbinary {
+sub ip4binary {
 	my $self = shift;
 	my ($arg) = @_;
 
@@ -89,10 +90,25 @@ sub iptbinary {
 			__errstr($self, 'invalid path: '.$arg);
 			return;
 		}
-		$self->{iptbinary} = $arg;
+		$self->{ip4binary} = $arg;
 	}
 
-	return $self->{iptbinary};
+	return $self->{ip4binary};
+}
+
+sub ip6binary {
+	my $self = shift;
+	my ($arg) = @_;
+
+	if ( $arg ) {
+		unless ( $arg =~ m|\A/.+\z| ) {
+			__errstr($self, 'invalid path: '.$arg);
+			return;
+		}
+		$self->{ip6binary} = $arg;
+	}
+
+	return $self->{ip6binary};
 }
 
 sub iptaction {
@@ -472,7 +488,8 @@ sub generate {
 	my $rule_prefix;
 	my $rule_criteria;
 
-	$rule_prefix = $self->{iptbinary};
+	$rule_prefix = $self->{ip4binary} if $self->{ipver} eq '4';
+	$rule_prefix = $self->{ip6binary} if $self->{ipver} eq '6';
 	$rule_prefix .= ' -t '.$self->{table} if ( defined($self->{'table'}) );
 	$rule_prefix .= ' '.$self->{iptaction};
 	$rule_prefix .= ' '.$self->{chain};
@@ -883,13 +900,21 @@ using the C<errstr> method:
 
 Create a new object to hold a rule.
 
-=head3 iptbinary
+=head3 ip4binary
 
 When you call L</generate>, the returned output will prefix with the generic
-string 'iptables'. Use C<iptbinary> method to change this to something more
+string 'iptables'. Use C<ip4binary> method to change this to something more
 appropriate. For example, to use an absolute path:
 
-  $ipt_rule->iptbinary('/usr/bin/iptables');
+  $ipt_rule->ip4binary('/usr/bin/iptables');
+
+=head3 ip6binary
+
+When you call L</generate>, the returned output will prefix with the generic
+string 'ip6tables'. Use C<ip4binary> method to change this to something more
+appropriate. For example, to use an absolute path:
+
+  $ipt_rule->ip6binary('/usr/bin/ip6tables');
 
 =head3 iptaction
 
